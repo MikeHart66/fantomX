@@ -1,0 +1,76 @@
+Version 2.01
+
+*New functionalities*
+
+  - Added ftEngine.CreateImage:ftObject(image:ftImage, xpos:Float, ypos:Float, _ucob:Object=Null)
+
+*Fixes*
+
+  - Fixed ftBox2D.CreateObject to set the angle with its corresponding ftObject
+  
+*Changes*
+
+  - Added children flag to ftObject.SetActive, so it affects children too
+  - Added children flag to ftObject.SetVisible, so it affects children too
+  - Default Image flags when loading content are now set to Image.Filter
+  - A ftObject has a corresponding box2d object field only, when #If FantomX_UsePhysics = 1 was added before importing fantomX.
+   
+*New example*
+
+  - Canvas/VirtualResolution/VirtualResolution.monkey
+  - Sound/Sound.monkey
+  - TileMaps/Platformer_Physics/Platformer_Physics.monkey
+  
+-----------------------------------------------------------------------------
+Version 2.00
+
+*New functionalities*
+
+  - fantomX now uses mojo2.
+  - Box2D is more closely integrated into the engine. As mojo2 is now supported, this was unavoidable.
+ 
+*New functions/methods compared to fantomEngine v1.57*
+
+  - ftEngine.CreateCanvas:Canvas(image:Image = Null)
+  - ftEngine.GetCanvas:Canvas()
+  - ftEngine.Render:Void(scene:ftScene)
+  - ftEngine.RenderFlush:Void()
+  - ftEngine.SetAlpha:Void(alpha:Float)
+  - ftEngine.SetCanvas:Void(canvas:Canvas)
+  - ftEngine.SetCanvasAmbientLight : Void ( red:Float, green:Float, blue:Float )
+  - ftEngine.SetCanvasColorMask:Void(red:Bool, green:Bool, blue:Bool, alpha:Bool)
+  - ftEngine.SetCanvasFogColor:Void(red:Float, green:Float, blue:Float, alpha:float)
+  - ftEngine.SetColor:Void(red:Float, green:Float, blue:Float)
+  - ftEngine.SetupRender:Void()
+  - ftMapTile.GetProperty:String(key:String)
+  - ftMapTile.GetPropertyCount:Int()
+  - ftObject.CreateImage:ftObject(width:Int, height:Int, xpos:Float, ypos:Float, _ucob:Object=Null)
+  - ftScene.Render:Void(setupRender:Bool = False)
+  - ftScene.Update:Void(speed:Float=1.0, updateEngineTimer:Bool = False)
+  - ftTileMap.GetTileSet:ftTileSet(index:Int)
+  - ftTileMap.GetTileSetCount:Int()
+  - ftTileSet.GetImageHeight:Int()
+  - ftTileSet.GetImageWidth:Int()
+  - ftTileSet.GetTileHeight:Int()
+  - ftTileSet.GetTileWidth:Int()   
+  - ftVec2D.Lerp:ftVec2D(targetVector:ftVec2D, timeFaktor:Float)
+  
+*Changes*
+
+  - ftObject.SetBlendMode regarding usable mojo2 blend modes.
+  - Removed class tPointS and exchanged it with class ftVec2Dp.
+  - Class ftVec2D extends now class ftVec2Dp. 
+  - Moved the collision detection methods outside of ftObject into the cftCollisions file and made functions out of them.
+  - Renamed function GetPitchRate:Float(halfStep:Float, base:Float=1.0) inside the cftMisc.monkey file to ftGetPitchRate.
+  - Moved ftEngine._StripDir:String( path:String ) as a function to the cftMisc.monkey file.
+  - ftEngine.GetTouchX:Float(index:Int=0, withCam:Bool = True)     ' Added withCam parameter
+  - ftEngine.GetTouchXY:Float[](index:Int=0, withCam:Bool = True)     ' Added withCam parameter
+  - ftEngine.GetTouchY:Float(index:Int=0, withCam:Bool = True)     ' Added withCam parameter
+  - ftEngine.LoadMusic:ftSound(filename:String, loopFlag:Bool=True)    ' Changed the default loop frag to true
+  - ftEngine.SetMaxSoundChannel:Void(maxChannel:Int = 31)   ' Changed the channel range to 0-31
+  
+*New example*
+
+  - Sound/Sound.monkey 
+  
+  
