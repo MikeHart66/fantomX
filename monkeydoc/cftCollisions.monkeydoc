@@ -1,0 +1,42 @@
+# Module cftCollisions
+
+The module cftCollisions is a collection of several of several collision dectection functions. these are utilized mostly inside the ftObject class to determine if a collision has happened.
+
+# Import fantomX
+
+# Function ftColl_Bound2Bound:Bool(obj1:ftObject, obj2:ftObject)
+
+# Function ftColl_Box2Box:Bool(pSpriteA:ftObject, pSpriteB:ftObject)
+
+# Function ftColl_Box2Circle:Bool(obj2:ftObject, obj1:ftObject)
+
+# Function ftColl_Circle2Box:Bool(obj1:ftObject, obj2:ftObject)
+
+# Function ftColl_Circle2Circle:Bool(obj1:ftObject, obj2:ftObject)
+
+# Function ftColl_Circle2CircleInBox:Bool(obj1:ftObject, obj2:ftObject)
+
+# Function ftColl_Circle2LineObj:Bool(obj1:ftObject, obj2:ftObject)
+
+# Function ftColl_CrossDistance:Float(l1:tLine2D, l2:tLine2D, safetyZone:Float)
+
+# Function ftColl_IsBetween:Bool(v:Float,l:Float,h:Float)
+
+# Function ftColl_IsIn:Bool(p:ftVec2Dp, a:ftVec2Dp, b:ftVec2Dp, d:ftVec2Dp)
+
+# Function ftColl_Line2Circle:Bool(x1:Float, y1:Float, x2:Float, y2:Float, px:Float, py:Float, r:Float)
+
+# Function ftColl_Line2Line:none(x0:Float, y0:Float , x1:Float, y1:Float,x2:Float ,y2:Float, x3:Float, y3:Float)
+
+# Function ftColl_PointInsideBound:Bool(obj:ftObject, px:Float, py:Float)
+
+# Function ftColl_PointInsideCircle:Bool(obj:ftObject, _px:Float, _py:Float)
+
+# Function ftColl_PointInsidePolygon:Bool(obj:ftObject, px:Float, py:Float)
+
+# Function ftColl_PointToPointDist:Float(x1:Float, y1:Float, x2:Float, y2:Float)
+
+# Function ftColl_PointToPointDist_Square:Float(x1:Float, y1:Float, x2:Float, y2:Float)
+
+# Function ftColl_Vec2DotProduct:Float(v1:ftVec2Dp, v2:ftVec2Dp)
+

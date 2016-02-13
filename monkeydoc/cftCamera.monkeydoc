@@ -1,0 +1,26 @@
+# Module cftCamera
+
+The cftCamera module adds multiple cameras/windows to fantomX.
+
+# Import fantomX
+
+# Class cftCamera.ftCamera
+
+The class *ftCamera* represents a window on the mojo2 canvas.
+
+# Class cftCamera.ftCameraMng
+
+The class *ftCameraMng* manages alls cameras created by fantomX.
+
+# Method CreateCamera:ftCamera()
+
+*Description*
+
+Creates a new view with a new canvas.
+
+# Method RemoveAllCameras:Void()
+
+*Description*
+
+Removes all cameras.
+

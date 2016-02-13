@@ -7,19 +7,23 @@ Version 2.01
 *Fixes*
 
   - Fixed ftBox2D.CreateObject to set the angle with its corresponding ftObject
-  
+  - Fixed/Changed ftLayer.Render regarding layer scaling.
+  - Fixed ftObject.Render regarding layer scaling and also object culling.
+    
 *Changes*
 
   - Added children flag to ftObject.SetActive, so it affects children too
   - Added children flag to ftObject.SetVisible, so it affects children too
   - Default Image flags when loading content are now set to Image.Filter
-  - A ftObject has a corresponding box2d object field only, when #If FantomX_UsePhysics = 1 was added before importing fantomX.
+  - A ftObject has a corresponding box2d object field only, when #FantomX_UsePhysics = 1 was added before importing fantomX.
+  - ftLayer.SetLayerScissor now works with virtual values, no offsets anymore
    
 *New example*
 
   - Canvas/VirtualResolution/VirtualResolution.monkey
   - Sound/Sound.monkey
   - TileMaps/Platformer_Physics/Platformer_Physics.monkey
+  - Layer/LayerScaling/LayerScaling.monkey
   
 -----------------------------------------------------------------------------
 Version 2.00

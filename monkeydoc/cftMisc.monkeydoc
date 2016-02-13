@@ -1,0 +1,16 @@
+# Module cftMisc
+
+# Import fantomX
+
+# Function ftGetPitchRate:Float(halfStep:Float, base:Float=1.0)
+
+*Description*
+
+Calculates the pitchrate for the amount of given halfsteps. The default base note is 'A4'
+
+# Function ftStripDir:String(path:String)
+
+*Description*
+
+This function returns a path without the last backslash or slash.
+

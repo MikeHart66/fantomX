@@ -1,0 +1,30 @@
+# Module cftTimer
+
+The class *ftTimer* handles ftEngine and ftObject timer objects.
+
+# Import fantomX
+
+# Class cftTimer.ftTimer
+
+# Method GetPaused:Bool()
+
+*Description*
+
+Returns TRUE if a transition is paused.
+
+Links: [[SetPaused]]
+
+# Method RemoveTimer:Void()
+
+*Description*
+
+With this method removes the timer.
+
+# Method SetPaused:Void(pauseFlag:Bool = True)
+
+*Description*
+
+With this method you can pause and resume the timer.
+
+Links: [[GetPaused]], [[Update]]
+
