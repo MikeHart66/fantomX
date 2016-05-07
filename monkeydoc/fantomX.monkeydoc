@@ -27,8 +27,8 @@ The forum is also a good place to ask your questions about how to use <b>fantomX
 <li>Simple sound loading which handles the proper file extension depending on the chosen platform. 
 <li>Support for bitmap font text objects which load <b>EzGUI</b> font descriptions.
 <li>Build-in frames per second calculator.
-<li>Simple camera support which you can move around to render parts of your scenery.
-<li>Support for texture maps (atlas) created by the tool TexturePacker.
+<li>Simple camera/view support which you can move around to render parts of your scenery.
+<li>Support for texture maps (atlas) created by the tool <b>TexturePacker</b>.
 <li>Support for tile maps created by the tool <b>Tiled</b>.
 <li>Embedded object informations inside a Tiled map will be imported and are accessable.
 <li>Engine time scaling supporting object updates, timers and transitions.
@@ -41,7 +41,8 @@ The forum is also a good place to ask your questions about how to use <b>fantomX
 <li>Easy scene/room management.
 <li>Objects can be composed of several single images.
 <li>Automatic object pooling.
-<li>Custom GUI elements</ul>
+<li>Custom GUI elements.
+<li>Support for 9-slice image scaling.</ul>
 # Import brl.pool
 
 # Import fantomX.cftAStar
@@ -94,7 +95,11 @@ The forum is also a good place to ask your questions about how to use <b>fantomX
 
 # Import fantomX.cftWaypoints
 
-# Import json
+# Import fantomX.json
+
+# Import fantomX.xml
 
 # Import mojo2
+
+# Import reflection
 

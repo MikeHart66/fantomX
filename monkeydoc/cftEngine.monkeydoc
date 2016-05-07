@@ -1393,9 +1393,25 @@ Links: [[CreateObjTimer]]
 
 *Description*
 
-This method is called when an object was touched.
+This method is called when an object is still touched.
 
-Links: [[TouchCheck]]
+Links: [[TouchCheck]], [[OnObjectTouchEnter]], [[OnObjectTouchExit]]
+
+# Method OnObjectTouchEnter:Int(obj:ftObject, touchId:Int)
+
+*Description*
+
+This method is called when an object is first touched.
+
+Links: [[TouchCheck]], [[OnObjectTouch]], [[OnObjectTouchExit]]
+
+# Method OnObjectTouchExit:Int(obj:ftObject, touchId:Int)
+
+*Description*
+
+This method is called when an object is not touched anymore.
+
+Links: [[TouchCheck]], [[OnObjectTouch]], [[OnObjectTouchEnter]]
 
 # Method OnObjectTransition:Int(transId:Int, obj:ftObject)
 
@@ -2040,7 +2056,11 @@ Do a touch check over all layers and their active objects which have a touch met
 
 If a touch was detected, it will call the <b>ftEngine.OnObjectTouch</b> method.
 
-Links: [[OnObjectTouch]]
+The <b>ftEngine.OnObjectTouchEnter</b> and <b>ftEngine.OnObjectTouchExit</b> events are being called only if you activate them
+
+via a call to <b>ftLayer.ActivateTouchEnterExitEvent</b>.
+
+Links: [[OnObjectTouch]], [[OnObjectTouchEnter]], [[OnObjectTouchExit]]
 
 # Method TouchCheck:Void(layer:ftLayer, touchID:Int=0)
 
@@ -2052,7 +2072,11 @@ Do a touch check over all active objects of a given layer which have a touch met
 
 If a touch was detected, it will call the <b>ftEngine.OnObjectTouch</b> method.
 
-Links: [[OnObjectTouch]]
+The <b>ftEngine.OnObjectTouchEnter</b> and <b>ftEngine.OnObjectTouchExit</b> events are being called only if you activate them
+
+via a call to <b>ftLayer.ActivateTouchEnterExitEvent</b>.
+
+Links: [[OnObjectTouch]], [[OnObjectTouchEnter]], [[OnObjectTouchExit]]
 
 # Method Update:Void(speed:Float=1.0)
 
@@ -2212,6 +2236,16 @@ Links: [[SetDefaultActive]], [[SetTimeScale]], [[OnLayerUpdate]], [[OnObjectUpda
 # Const tmBox% = 3:none
 
 # Const tmCircle% = 1:none
+
+# Const tsEnter% = 1:none
+
+# Const tsExit% = 99:none
+
+# Const tsIsTouch% = 2:none
+
+# Const tsNoTouch% = 0:none
+
+# Const tsWasTouch% = 3:none
 
 # Const twmBounceEaseIn% = 1:none
 

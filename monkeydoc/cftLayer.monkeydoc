@@ -8,6 +8,18 @@ The module *cftLayer* contains the ftLayer class and the lObjList class with is 
 
 The class *ftLayer* groups assigned objects. A layer then will update, render, touch and collision check all its objects together in one batch.
 
+# Method ActivateTouchEnterExitEvent:Void(onOff:Bool = True)
+
+*Description*
+
+Activates the ftEngine.OnObjectTouchEnter and ftEngine.OnObjectTouchExit method to be called for an active object during ftEngine.TouchCheck.
+
+*Details*
+
+By default this flag is set OFF.
+
+Links: [[TouchCheck]]
+
 # Method CollisionCheck:Void()
 
 *Description*
@@ -310,7 +322,13 @@ Executes a touch check to each object at the given position.
 
 The object has to have a touchmode > 0 and needs to be active.
 
-If a touch of an object was detected, then the ftEngine.OnObjectTouch method is called with the object and the touchID as a parameter.
+If a touch of an object was detected, then either the <b>ftEngine.OnObjectTouch</b>, <b>ftEngine.OnObjectTouchEnter</b> or the <b>ftEngine.OnObjectTouchExit</b> method is called with the object and the touchID as a parameter.
+
+The <b>ftEngine.OnObjectTouchEnter</b> and <b>ftEngine.OnObjectTouchExit</b> events are being called only if you activate them
+
+via a call to <b>ftLayer.ActivateTouchEnterExitEvent</b>.
+
+Links: [[ActivateTouchEnterExitEvent]]
 
 # Method Update:Void(speed:Float=1.0)
 

@@ -56,6 +56,20 @@ Class ftLayer
 	Field scissorWidth:Float = 0.0
 	Field scissorHeight:Float = 0.0
 	
+	Field onTouchEnterExitEvent:Bool = False
+	Field didTouchCheckUpdate:Bool = False
+'#DOCON#
+	'-----------------------------------------------------------------------------
+#Rem
+'summery:Activates the ftEngine.OnObjectTouchEnter and ftEngine.OnObjectTouchExit method to be called for an active object during ftEngine.TouchCheck.
+'By default this flag is set OFF.
+#End
+'seeAlso:TouchCheck
+	Method ActivateTouchEnterExitEvent:Void (onOff:Bool = True )
+		Self.onTouchEnterExitEvent = onOff
+	End	
+
+'#DOCOFF#
 	'-----------------------------------------------------------------------------
 	Method CleanupLists:Void()
 		For Local trans:ftTrans = Eachin transitionList
@@ -502,24 +516,83 @@ Overwrite that method to get a different sorting. The default sorting will sort 
 		objList.Sort()
 	End
 	'------------------------------------------
+'changes:2.02:Fixed so it takes a layer scaling into its calculation. Also added ftObject.OnObjectTouchEnter and OnObjectTouchExit handlers 
 #Rem
 'summery:Executes a touch check to each object at the given position.
 'The object has to have a touchmode > 0 and needs to be active.
-'If a touch of an object was detected, then the ftEngine.OnObjectTouch method is called with the object and the touchID as a parameter.
+'If a touch of an object was detected, then either the [b]ftEngine.OnObjectTouch[/b], [b]ftEngine.OnObjectTouchEnter[/b] or the [b]ftEngine.OnObjectTouchExit[/b] method is called with the object and the touchID as a parameter.
+'The [b]ftEngine.OnObjectTouchEnter[/b] and [b]ftEngine.OnObjectTouchExit[/b] events are being called only if you activate them
+'via a call to [b]ftLayer.ActivateTouchEnterExitEvent[/b].
 #End
+'seeAlso:ActivateTouchEnterExitEvent
 	Method TouchCheck:Void(x:Float, y:Float, touchID:Int)
 		inTouch = True
 		For Local obj := Eachin objList.Backwards()
 			If obj.touchMode > 0 And obj.isActive = True
-				If obj.CheckTouchHit(x - Self.xPos, y - Self.yPos)
-					If engine.OnObjectTouch(obj,touchID) <> 0 Then Exit
+				If obj.CheckTouchHit(x / Self.scale - Self.xPos, y / Self.scale - Self.yPos)
+					If Self.onTouchEnterExitEvent = True  
+						Select obj.touchState
+							Case ftEngine.tsEnter, ftEngine.tsIsTouch, ftEngine.tsWasTouch
+								obj.touchState = ftEngine.tsIsTouch
+								If engine.OnObjectTouch(obj,touchID) <> 0 Then Exit
+							Case ftEngine.tsNoTouch
+								obj.touchState = ftEngine.tsEnter
+								If engine.OnObjectTouchEnter(obj,touchID) <> 0 Then Exit
+						End
+					Else
+						If engine.OnObjectTouch(obj,touchID) <> 0 Then Exit
+					Endif
+				Else
+					If Self.onTouchEnterExitEvent = True  
+						Select obj.touchState
+							Case ftEngine.tsEnter, ftEngine.tsIsTouch, ftEngine.tsWasTouch
+								obj.touchState = ftEngine.tsExit
+						End
+						If obj.touchState = ftEngine.tsExit
+							obj.touchState = ftEngine.tsNoTouch
+							If engine.OnObjectTouchExit(obj,touchID) <> 0 Then Exit
+						Endif
+					Endif
 				Endif
 			Endif
 		Next
 		If inUpdate = False Then CleanupLists()
 		inTouch = False
+		If Self.onTouchEnterExitEvent = True  
+			Self._TouchCheckUpdate()	
+		Endif
 	End
 	'------------------------------------------
+'#DOCOFF#	
+'changes:2.02:New method. 
+#Rem
+'summery:Updates the touchState for each previously touched object. If the object reaches the [b]ftEngine.tsExit[/b], then the
+'[b]ftEngine.OnObjectTouchExit[/b] event is being called.
+#End
+	Method _TouchCheckUpdate:Void()
+		inTouch = True
+		For Local obj := Eachin objList.Backwards()
+			If obj.touchState <> ftEngine.tsNoTouch
+				Select obj.touchState
+					Case ftEngine.tsWasTouch
+						obj.touchState = ftEngine.tsExit
+					Case ftEngine.tsEnter, ftEngine.tsIsTouch
+						obj.touchState = ftEngine.tsWasTouch
+				End
+				If obj.touchState = ftEngine.tsExit
+					obj.touchState = ftEngine.tsNoTouch
+						
+					If engine.OnObjectTouchExit(obj,-1) <> 0 Then Exit
+				Endif
+			Endif
+		Next
+		If inUpdate = False Then CleanupLists()
+		inTouch = False
+		Self.didTouchCheckUpdate = True
+	End
+'#DOCON#	
+'------------------------------------------
+'changes:2.02:Added call to ftEngine._TouchCheckUpdate()
 #Rem
 'summery:Updates all transitions and objects of a layer.
 'The speed parameter will be used to automatically update the objects.
@@ -527,6 +600,10 @@ Overwrite that method to get a different sorting. The default sorting will sort 
 #End
 'seeAlso:ftObject.ActivateDeleteEvent
 	Method Update:Void(speed:Float=1.0)
+		If Self.onTouchEnterExitEvent = True And Self.didTouchCheckUpdate = False 
+			Self._TouchCheckUpdate()	
+		Endif
+		Self.didTouchCheckUpdate = False
 		inUpdate = True
 		Self.engine.delta = speed
 		If engine.isPaused = False Then

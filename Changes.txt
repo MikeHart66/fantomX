@@ -1,3 +1,30 @@
+Version 2.02
+
+*New functionalities*
+
+  - Added ftObject.SetImageScale9:Void (top:Float, bottom:Float, left:Float, bottom:Float) to support 9-slice image scaling.
+  - Added ftLayer.ActivateTouchEnterExitEvent (onOff:Bool = True) to activate the call of the following events...
+  - Added ftEngine.OnObjectTouchEnter (obj:ftObject, touchId:Int)
+  - Added ftEngine.OnObjectTouchExit (obj:ftObject, touchId:Int)
+  - Added SKN3's XML very good module
+
+*Fixes*
+
+  - Fixed ftLayer.TouchCheck so it takes a scaling of the layer into its calculation.
+    
+*Changes*
+
+  - ftEngine.CopyObject now supports 9-slice image scaling related fields of an object.
+  - ftObject.Render now supports 9-slice image scaling.
+  - ftObject.SetHeight:Void (height:Float, scaleMode:Bool = False) Added scale mode parameter. If set to true, the scale factor of an object is adjusted too.
+  - ftObject.SetWidth:Void (width:Float, scaleMode:Bool = False) Added scale mode parameter. If set to true, the scale factor of an object is adjusted too.
+   
+*New example*
+
+  - Input/TouchInputEX/TouchInputEX.monkey
+  - Objects/Appearance/9SliceScaling/9SliceScaling.monkey
+
+-----------------------------------------------------------------------------
 Version 2.01
 
 *New functionalities*

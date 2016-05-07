@@ -7,7 +7,7 @@
 	
 	'Website:      http://www.fantomgl.com
 	
-	'Version:      2.01
+	'Version:      2.02
 	'License:      MIT
 #End
 
@@ -58,6 +58,7 @@ Import fantomX.cftRGBA
 Import fantomX.cftScene
 Import fantomX.cftSound
 Import fantomX.cftSpriteAtlas
+'Import fantomX.cftSpriter
 'Import fantomX.src.cftSteamIntegration
 Import fantomX.cftSwipe
 Import fantomX.cftTileMap
@@ -67,6 +68,7 @@ Import fantomX.cftVec2D
 Import fantomX.cftWaypoints
 'Import fantomX.src.cftXml
 Import fantomX.json
+Import fantomX.xml
 
 
 '-OUTPUTNAME#index.html

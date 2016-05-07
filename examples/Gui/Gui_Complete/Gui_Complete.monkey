@@ -4,12 +4,13 @@ Strict
 	Script:			Gui_Complete.monkey
 	Description:	fantomX sample script that shows how to use the gui objects
 	Author: 		Michael Hartlef
-	Version:      	2.0
+	Version:      	2.01
 #End
 
 ' Set the AutoSuspend functionality to TRUE so OnResume/OnSuspend are called
 #MOJO_AUTO_SUSPEND_ENABLED=True
-#MOJO_IMAGE_FILTERING_ENABLED=False
+#MOJO_IMAGE_FILTERING_ENABLED=True
+#GLFW_WINDOW_TITLE="Gui_Complete.monkey"
 
 'Set to false to disable webaudio support for mojo audio, and to use older multimedia audio system instead.
 #HTML5_WEBAUDIO_ENABLED=True
@@ -68,7 +69,10 @@ Class cGame Extends App
 		Local dm := New DisplayMode
 		dm = DesktopMode()
 		Print("1 Width:"+dm.Width+"  Height:"+dm.Height)
-		SetDeviceWindow( 1280, 800, 2 )
+		SetDeviceWindow( 1280, 960, 4 )
+		
+		SetSwapInterval(1)
+
 		dm = DesktopMode()
 		Print("2 Width:"+dm.Width+"  Height:"+dm.Height)
 		' Create an instance of the fantomX, which was created via the cEngine class
@@ -83,7 +87,7 @@ Class cGame Extends App
 		'HideMouse()
 		
 		fE = New cEngine
-		fE.SetCanvasSize(640,480)
+		'fE.SetCanvasSize(640,480)
 		
 		font1 = fE.LoadFont("font_20")
 

@@ -132,6 +132,13 @@ Class ftEngine
 	Const tmBound% = 2
 	Const tmBox% = 3
 	
+	'touch states
+	Const tsNoTouch% = 0
+	Const tsEnter% = 1
+	Const tsIsTouch% = 2
+	Const tsWasTouch% = 3
+	Const tsExit% = 99
+	
 	'Canvas center modes
 	Const cmZoom% = 0		'Old behaviour, canvas will be stretched/fitted into the screen. 
 	Const cmCentered% = 1	'Pixel perfect, canvas will be centered into the screen space. No content scaling.
@@ -313,10 +320,10 @@ This command copies a given object and returns the copy. The new object contains
 		newObj.y2 = srcObj.y2
 		newObj.verts = srcObj.verts
 		
-		newObj.rw = srcObj.rw
-		newObj.rh = srcObj.rh
-		newObj.rox = srcObj.rox
-		newObj.roy = srcObj.roy
+		newObj.renderWidth = srcObj.renderWidth
+		newObj.renderHeight = srcObj.renderHeight
+		newObj.renderOffX = srcObj.renderOffX
+		newObj.renderOffY = srcObj.renderOffY
 	
 		newObj.angle = srcObj.angle
 		newObj.scaleX = srcObj.scaleX
@@ -408,8 +415,8 @@ This command copies a given object and returns the copy. The new object contains
 		newObj.offAngle = srcObj.offAngle
 		newObj.handleX = srcObj.handleX
 		newObj.handleY = srcObj.handleY
-		newObj.hOffX = srcObj.hOffX
-		newObj.hOffY = srcObj.hOffY
+		newObj.handleOffX = srcObj.handleOffX
+		newObj.handleOffY = srcObj.handleOffY
 		
 		If srcObj.animMng <> Null Then
 			newObj.animMng = srcObj.animMng._CopyAnim()
@@ -419,11 +426,19 @@ This command copies a given object and returns the copy. The new object contains
 		newObj.currImageFrame = srcObj.currImageFrame
 
 
-		newObj.minX = srcObj.minX
-		newObj.minY = srcObj.minY
-		newObj.maxX = srcObj.maxX
-		newObj.maxY = srcObj.maxY
+		newObj.objMinX = srcObj.objMinX
+		newObj.objMinY = srcObj.objMinY
+		newObj.objMaxX = srcObj.objMaxX
+		newObj.objMaxY = srcObj.objMaxY
 		
+		newObj.scale9T = srcObj.scale9T
+		newObj.scale9B = srcObj.scale9B
+		newObj.scale9L = srcObj.scale9L
+		newObj.scale9R = srcObj.scale9R
+		newObj.scale9Type = srcObj.scale9Type
+		
+		newObj.touchState = Self.tsNoTouch
+
 		Return ftObject(newObj)
 	End
 	'-----------------------------------------------------------------------------
@@ -455,8 +470,8 @@ It creates a DEFAULT animation automatically.
 		obj.w = obj.objImg[0].img[0].Width()
 		obj.h = obj.objImg[0].img[0].Height()
 		
-		obj.rw = obj.w
-		obj.rh = obj.h
+		obj.renderWidth = obj.w
+		obj.renderHeight = obj.h
 		
 		obj.SetLayer(Self.defaultLayer)
 		obj.SetActive(Self.defaultActive)
@@ -498,8 +513,8 @@ It creates a DEFAULT animation automatically.
 		obj.w = obj.objImg[0].img[0].Width()
 		obj.h = obj.objImg[0].img[0].Height()
 		
-		obj.rw = obj.w
-		obj.rh = obj.h
+		obj.renderWidth = obj.w
+		obj.renderHeight = obj.h
 		
 		obj.SetLayer(Self.defaultLayer)
 		obj.SetActive(Self.defaultActive)
@@ -528,8 +543,8 @@ It creates a DEFAULT animation automatically.
 		obj.w = width
 		obj.h = height
 		
-		obj.rw = obj.w
-		obj.rh = obj.h
+		obj.renderWidth = obj.w
+		obj.renderHeight = obj.h
 		
 		obj.SetLayer(Self.defaultLayer)
 		obj.SetActive(Self.defaultActive)
@@ -587,8 +602,8 @@ It creates a DEFAULT animation automatically.
 		obj.w = obj.radius*2
 		obj.h = obj.radius*2
 		
-		obj.rw = obj.w
-		obj.rh = obj.h
+		obj.renderWidth = obj.w
+		obj.renderHeight = obj.h
 		
 		obj.SetLayer(Self.defaultLayer)
 		obj.SetActive(Self.defaultActive)
@@ -611,8 +626,8 @@ It creates a DEFAULT animation automatically.
 		obj.w = 1
 		obj.h = 1
 		
-		obj.rw = obj.w
-		obj.rh = obj.h
+		obj.renderWidth = obj.w
+		obj.renderHeight = obj.h
 		
 		obj.SetLayer(Self.defaultLayer)
 		obj.SetActive(Self.defaultActive)
@@ -649,8 +664,8 @@ It creates a DEFAULT animation automatically.
 		obj.w = obj.objImg[0].img[0].Width()
 		obj.h = obj.objImg[0].img[0].Height()
 		
-		obj.rw = obj.w
-		obj.rh = obj.h
+		obj.renderWidth = obj.w
+		obj.renderHeight = obj.h
 		
 		obj.SetLayer(Self.defaultLayer)
 		obj.SetActive(Self.defaultActive)
@@ -688,8 +703,8 @@ It creates a DEFAULT animation automatically.
 		obj.w = obj.objImg[0].img[0].Width()
 		obj.h = obj.objImg[0].img[0].Height()
 		
-		obj.rw = obj.w
-		obj.rh = obj.h
+		obj.renderWidth = obj.w
+		obj.renderHeight = obj.h
 		
 		obj.SetLayer(Self.defaultLayer)
 		obj.SetActive(Self.defaultActive)
@@ -723,8 +738,8 @@ It creates a DEFAULT animation automatically.
 		obj.w = obj.objImg[0].img[0].Width()
 		obj.h = obj.objImg[0].img[0].Height()
 		
-		obj.rw = obj.w
-		obj.rh = obj.h
+		obj.renderWidth = obj.w
+		obj.renderHeight = obj.h
 		
 		obj.SetLayer(Self.defaultLayer)
 		obj.SetActive(Self.defaultActive)
@@ -758,8 +773,8 @@ It creates a DEFAULT animation automatically.
 		obj.w = obj.objImg[0].img[0].Width()
 		obj.h = obj.objImg[0].img[0].Height()
 		
-		obj.rw = obj.w
-		obj.rh = obj.h
+		obj.renderWidth = obj.w
+		obj.renderHeight = obj.h
 		
 		obj.SetLayer(Self.defaultLayer)
 		obj.SetActive(Self.defaultActive)
@@ -795,8 +810,8 @@ It creates a DEFAULT animation automatically.
 		obj.w = obj.objImg[0].img[0].Width()
 		obj.h = obj.objImg[0].img[0].Height()
 		
-		obj.rw = obj.w
-		obj.rh = obj.h
+		obj.renderWidth = obj.w
+		obj.renderHeight = obj.h
 		
 		obj.SetLayer(Self.defaultLayer)
 		obj.SetActive(Self.defaultActive)
@@ -907,8 +922,8 @@ From version 1.52 on it supports Sparrow compatible files (.xml).
 		obj.radius = (Max(obj.objImg[0].img[0].Height(), obj.objImg[0].img[0].Width()))/2.0
 		obj.w = obj.objImg[0].img[0].Width()
 		obj.h = obj.objImg[0].img[0].Height()
-		obj.rw = obj.objImg[0].img[0].Width()
-		obj.rh = obj.objImg[0].img[0].Height()
+		obj.renderWidth = obj.objImg[0].img[0].Width()
+		obj.renderHeight = obj.objImg[0].img[0].Height()
 		
 		obj.SetLayer(Self.defaultLayer)
 		obj.SetActive(Self.defaultActive)
@@ -970,8 +985,8 @@ The objects handle is in the middle of the line by default and can be changed vi
 
 
 		obj.radius = obj.w / 2.0
-		obj.rw = obj.w
-		obj.rh = obj.h
+		obj.renderWidth = obj.w
+		obj.renderHeight = obj.h
 		
 		obj.SetLayer(Self.defaultLayer)
 		obj.SetActive(Self.defaultActive)
@@ -1015,8 +1030,8 @@ When the timer fires it will call OnObjectTimer. A repeatCount of -1 will let th
 		
 		obj.radius = Max(obj.w, obj.h) / 2.0
 		
-		obj.rw = obj.w
-		obj.rh = obj.h
+		obj.renderWidth = obj.w
+		obj.renderHeight = obj.h
 		
 		obj.SetLayer(Self.defaultLayer)
 		obj.SetActive(Self.defaultActive)
@@ -1057,8 +1072,8 @@ When the timer fires it will call OnObjectTimer. A repeatCount of -1 will let th
 		obj.w = 1
 		obj.h = 1
 		
-		obj.rw = obj.w
-		obj.rh = obj.h
+		obj.renderWidth = obj.w
+		obj.renderHeight = obj.h
 		
 		obj.SetLayer(Self.defaultLayer)
 		obj.SetActive(Self.defaultActive)
@@ -1087,8 +1102,8 @@ When the timer fires it will call OnObjectTimer. A repeatCount of -1 will let th
 		obj.h = 1
 				
 		obj.radius = 0.5		
-		obj.rw = obj.w
-		obj.rh = obj.h
+		obj.renderWidth = obj.w
+		obj.renderHeight = obj.h
 		
 		obj.SetLayer(Self.defaultLayer)
 		obj.SetActive(Self.defaultActive)
@@ -1131,8 +1146,8 @@ When the timer fires it will call OnObjectTimer. A repeatCount of -1 will let th
 		obj.w = Abs(maxX - minX)
 		obj.h = Abs(maxY - minY)
 		
-		obj.rw = obj.w
-		obj.rh = obj.h
+		obj.renderWidth = obj.w
+		obj.renderHeight = obj.h
 		
 		obj.SetLayer(Self.defaultLayer)
 		obj.SetActive(Self.defaultActive)
@@ -1192,8 +1207,8 @@ When the timer fires it will call OnObjectTimer. A repeatCount of -1 will let th
 		obj.h = 29
 		obj.radius = 14.5
 		
-		obj.rw = obj.w
-		obj.rh = obj.h
+		obj.renderWidth = obj.w
+		obj.renderHeight = obj.h
 		
 		obj.SetHandle(0.0, 0.0)			'Upper Left
 		
@@ -1300,8 +1315,8 @@ When the timer fires it will call OnObjectTimer. A repeatCount of -1 will let th
 		obj.w = obj.objImg[0].img[0].Width()
 		obj.h = obj.objImg[0].img[0].Height()
 		
-		obj.rw = obj.w
-		obj.rh = obj.h
+		obj.renderWidth = obj.w
+		obj.renderHeight = obj.h
 		
 		obj.SetLayer(Self.defaultLayer)
 		obj.SetActive(Self.defaultActive)
@@ -1385,8 +1400,8 @@ When the timer fires it will call OnObjectTimer. A repeatCount of -1 will let th
 		obj.w = obj.objImg[0].img[0].Width()
 		obj.h = obj.objImg[0].img[0].Height()
 		
-		obj.rw = obj.w
-		obj.rh = obj.h
+		obj.renderWidth = obj.w
+		obj.renderHeight = obj.h
 		
 		obj.SetLayer(Self.defaultLayer)
 		obj.SetActive(Self.defaultActive)
@@ -1658,8 +1673,8 @@ The layerIndex tells fantomX to load the tileLayer at that index. Index starts w
 		obj.radius = (Max(obj.objImg[0].img[0].Height(), obj.objImg[0].img[0].Width()))/2.0
 		obj.w = obj.objImg[0].img[0].Width()
 		obj.h = obj.objImg[0].img[0].Height()
-		obj.rw = obj.w
-		obj.rh = obj.h
+		obj.renderWidth = obj.w
+		obj.renderHeight = obj.h
 		
 		obj.SetLayer(Self.defaultLayer)
 		obj.SetActive(Self.defaultActive)
@@ -1705,8 +1720,8 @@ When the timer fires it will call OnTimer. A repeatCount of -1 will let the time
 		obj.w = width
 		obj.h = height
 		
-		obj.rw = obj.w
-		obj.rh = obj.h
+		obj.renderWidth = obj.w
+		obj.renderHeight = obj.h
 		
 		obj.SetLayer(Self.defaultLayer)
 		obj.SetActive(Self.defaultActive)
@@ -1733,8 +1748,8 @@ When the timer fires it will call OnTimer. A repeatCount of -1 will let the time
 		obj.w = obj.radius*2
 		obj.h = obj.radius*2
 		
-		obj.rw = obj.w
-		obj.rh = obj.h
+		obj.renderWidth = obj.w
+		obj.renderHeight = obj.h
 		
 		obj.SetLayer(Self.defaultLayer)
 		obj.SetActive(Self.defaultActive)
@@ -2349,10 +2364,28 @@ The current default file formats are:
 	End	
 	'------------------------------------------
 #Rem
-'summery:This method is called when an object was touched.
+'summery:This method is called when an object is still touched.
 #End
-'seeAlso:TouchCheck
+'seeAlso:TouchCheck,OnObjectTouchEnter,OnObjectTouchExit
 	Method OnObjectTouch:Int(obj:ftObject, touchId:Int)
+		Return 0
+	End
+	'------------------------------------------
+'changes:2.02:New event handler
+#Rem
+'summery:This method is called when an object is first touched.
+#End
+'seeAlso:TouchCheck,OnObjectTouch,OnObjectTouchExit
+	Method OnObjectTouchEnter:Int(obj:ftObject, touchId:Int)
+		Return 0
+	End
+	'------------------------------------------
+'changes:2.02:New event handler
+#Rem
+'summery:This method is called when an object is not touched anymore.
+#End
+'seeAlso:TouchCheck,OnObjectTouch,OnObjectTouchEnter 
+	Method OnObjectTouchExit:Int(obj:ftObject, touchId:Int)
 		Return 0
 	End
 	'------------------------------------------
@@ -2961,11 +2994,14 @@ Lower values than 1.0 slow down the engine, bigger values speed it up.
 		Endif
 	End
 	'------------------------------------------
+'changes:2.02:Changed help text.
 #Rem
 'summery:Do a touch check over all layers and their active objects which have a touch method assigned to them.
 'If a touch was detected, it will call the [b]ftEngine.OnObjectTouch[/b] method.
+'The [b]ftEngine.OnObjectTouchEnter[/b] and [b]ftEngine.OnObjectTouchExit[/b] events are being called only if you activate them
+'via a call to [b]ftLayer.ActivateTouchEnterExitEvent[/b].
 #End
-'seeAlso:OnObjectTouch
+'seeAlso:OnObjectTouch,OnObjectTouchEnter,OnObjectTouchExit
 	Method TouchCheck:Void(touchID:Int=0)
 		Local px:Float = GetTouchX(touchID)
 		Local py:Float = GetTouchY(touchID)
@@ -2979,11 +3015,14 @@ Lower values than 1.0 slow down the engine, bigger values speed it up.
 		Next
 	End
 	'------------------------------------------
+'changes:2.02:Changed help text.
 #Rem
 'summery:Do a touch check over all active objects of a given layer which have a touch method assigned to them.
 'If a touch was detected, it will call the [b]ftEngine.OnObjectTouch[/b] method.
+'The [b]ftEngine.OnObjectTouchEnter[/b] and [b]ftEngine.OnObjectTouchExit[/b] events are being called only if you activate them
+'via a call to [b]ftLayer.ActivateTouchEnterExitEvent[/b].
 #End
-'seeAlso:OnObjectTouch
+'seeAlso:OnObjectTouch,OnObjectTouchEnter,OnObjectTouchExit
 	Method TouchCheck:Void(layer:ftLayer, touchID:Int=0)
 		Local px:Float = GetTouchX(touchID)
 		Local py:Float = GetTouchY(touchID)

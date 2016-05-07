@@ -1,10 +1,10 @@
 Strict
 
 #rem
-	Script:			BaseScript.monkey
-	Description:	Basic fantomX script
+	Script:			TouchInputEX.monkey
+	Description:	Sample fantomX script, that shows how to use the extended touch events
 	Author: 		Michael Hartlef
-	Version:      	2.01
+	Version:      	2.0
 #End
 
 ' Set the AutoSuspend functionality to TRUE so OnResume/OnSuspend are called
@@ -12,9 +12,6 @@ Strict
 
 'Set to false to disable webaudio support for mojo audio, and to use older multimedia audio system instead.
 #HTML5_WEBAUDIO_ENABLED=True
-
-' Tell FantomX to import physics related classes/fields/methods
-#FantomX_UsePhysics = True
 
 ' Import the fantomX framework which imports mojo2 itself
 Import fantomX
@@ -55,15 +52,18 @@ Class cGame Extends App
 		' Get the default layer of the engine
 		defLayer = fE.GetDefaultLayer()
 		
+		' Activate the OnObjectTouchEnter and OnObjectTouchExit events
+		defLayer.ActivateTouchEnterExitEvent(True)
+		
 		' Create a simple box
-		Local box := fE.CreateBox(120,20,fE.GetCanvasWidth()/2,fE.GetCanvasHeight()/2)
+		Local box := fE.CreateBox(120,120,fE.GetCanvasWidth()/2,fE.GetCanvasHeight()/2)
 		
-		' Set color of the box to a nice yellow
-		box.SetColor(255,255,0)
+		' Let the box be touchable
+		box.SetTouchMode(ftEngine.tmBox)
 		
-		' Let the box spin
-		box.SetSpin(5)
-
+		' Print some info
+		Print("Touch the box to make it spin and change color.")
+		
 		Return 0
 	End
 	'------------------------------------------
@@ -76,6 +76,10 @@ Class cGame Extends App
 
 		' Check if the engine is not paused
 		If fE.GetPaused() = False Then
+			' IF the left mouse key is pressed, do a touch check on all objects
+			'If TouchDown(0)
+				fE.TouchCheck()
+			'Endif
 			' Update all objects of the engine
 			fE.Update(timeDelta)
 		Endif
@@ -130,105 +134,24 @@ End
 ' The cEngine class extends the ftEngine class to override the On... methods
 Class cEngine Extends ftEngine
 	'------------------------------------------
-	Method OnLayerTransition:Int(transId:Int, layer:ftLayer)
-		' This method is called when a layer finishes its transition
-		Return 0
-	End
-	'------------------------------------------
-	Method OnLayerUpdate:Int(layer:ftLayer)
-		' This method is called when a layer finishes its update
-		Return 0
-	End	
-	'------------------------------------------
-	Method OnObjectAnim:Int(obj:ftObject)
-		'This Method is called when an animation of an object (obj) has finished one loop.
-		Return 0
-	End
-	'------------------------------------------
-	Method OnObjectCollision:Int(obj:ftObject, obj2:ftObject)
-		' This method is called when an object collided with another object
-		Return 0
-	End
-	'------------------------------------------
-	Method OnObjectDelete:Int(obj:ftObject)
-		' This method is called when an object is removed. You need to activate the event via ftObject.ActivateDeleteEvent.
-		Return 0
-	End
-	'------------------------------------------
-	Method OnObjectRender:Int(obj:ftObject)
-		' This method is called when an object was being rendered. You need to activate the event via ftObject.ActivateRenderEvent.
-		Return 0
-	End
-	'------------------------------------------
-	Method OnObjectSort:Int(obj1:ftObject, obj2:ftObject)
-		' This method is called when objects are compared during a sort of its layer list
-		Return 0
-	End	
-	'------------------------------------------
-	Method OnObjectTimer:Int(timerId:Int, obj:ftObject)
-		' This method is called when an objects' timer was being fired.
-		Return 0
-	End	
-	'------------------------------------------
 	Method OnObjectTouch:Int(obj:ftObject, touchId:Int)
 		' This method is called when an object is still touched
+		obj.SetColor(Rnd(255), Rnd(255), Rnd(255))
 		Return 0
 	End
 	'------------------------------------------
 	Method OnObjectTouchEnter:Int(obj:ftObject, touchId:Int)
 		'This method is called when an object is first touched.
+		obj.SetSpin(5)
 		Return 0
 	End
 	'------------------------------------------
 	Method OnObjectTouchExit:Int(obj:ftObject, touchId:Int)
 		'This method is called when an object is not touched anymore.
+		obj.SetSpin(0)
+		obj.SetColor(255, 255, 255)
 		Return 0
 	End
-	'------------------------------------------
-	Method OnObjectTransition:Int(transId:Int, obj:ftObject)
-		' This method is called when an object finishes its transition and the transition has an ID > 0.
-		Return 0
-	End
-	'------------------------------------------
-	Method OnObjectUpdate:Int(obj:ftObject)
-		' This method is called when an object finishes its update. You can deactivate the event via ftObject.ActivateUpdateEvent.
-		Return 0
-	End
-	'------------------------------------------
-	Method OnMarkerBounce:Int(marker:ftMarker, obj:ftObject)
-		' This method is called, when a path marker reaches the end of the path and is about to bounce backwards.
-		Return 0
-	End
-	'------------------------------------------
-	Method OnMarkerCircle:Int(marker:ftMarker, obj:ftObject)
-		' This method is called, when a path marker reaches the end of the path and is about to do another circle.
-		Return 0
-	End
-	'------------------------------------------
-	Method OnMarkerStop:Int(marker:ftMarker, obj:ftObject)
-		' This method is called, when a path marker reaches the end of the path and stops there.
-		Return 0
-	End
-	'------------------------------------------
-	Method OnMarkerWarp:Int(marker:ftMarker, obj:ftObject)
-		' This method is called, when a path marker reaches the end of the path and is about to warp to the start to go on.
-		Return 0
-	End
-	'------------------------------------------
-	Method OnMarkerWP:Int(marker:ftMarker, obj:ftObject)
-		' This method is called, when a path marker reaches a waypoint of its path.
-		Return 0
-	End
-	'------------------------------------------
-	Method OnSwipeDone:Int(touchIndex:Int, sAngle:Float, sDist:Float, sSpeed:Float)
-		' This method is called when a swipe gesture was detected
-		Return 0
-	End
-    '------------------------------------------
-	Method OnTimer:Int(timerId:Int)
-		' This method is called when an engine timer was being fired.
-		Return 0
-	End	
 End
 
 '***************************************

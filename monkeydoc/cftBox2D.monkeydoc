@@ -22,7 +22,7 @@ The cftBox2D module hosts an optional Box2D integration class. At the moment, no
 
 # Import physics.flash.flashtypes
 
-<table style="width: 100%"><tbody><tr id="144b2dCanvas"><td class="tablehead" colspan="2" id="b2dCanvas">Global b2dCanvas:Canvas</td></tr><tr><td style="width:90px">Type:</td><td>Canvas</td></tr></table># Class cftBox2D.ftBox2D
+<table style="width: 100%"><tbody><tr id="146b2dCanvas"><td class="tablehead" colspan="2" id="b2dCanvas">Global b2dCanvas:Canvas</td></tr><tr><td style="width:90px">Type:</td><td>Canvas</td></tr></table># Class cftBox2D.ftBox2D
 
 The ftBox2D class integrates some functionality of Box2D into your project. With it you can connect ftObjects with Box2D bodies. For feature requests, please contact Michael about what you need.
 

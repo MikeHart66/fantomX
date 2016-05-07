@@ -34,19 +34,19 @@ Function ftColl_Bound2Bound:Bool(obj1:ftObject, obj2:ftObject)
 	Local wxs2:Float = obj2.w * obj2.scaleX * obj2.collScale
 	Local hys2:Float = obj2.h * obj2.scaleY * obj2.collScale
 
-	left1   = obj1.xPos + obj1.hOffX - wxs1/2.0
+	left1   = obj1.xPos + obj1.handleOffX - wxs1/2.0
 	right1  = left1 + wxs1
 
-	left2   = obj2.xPos + obj2.hOffX - wxs2/2.0
+	left2   = obj2.xPos + obj2.handleOffX - wxs2/2.0
 	right2  = left2 + wxs2
 
 	If (right1 < left2) Then Return False
 	If (left1 > right2) Then Return False
 
-	top1    = obj1.yPos + obj1.hOffY - hys1/2.0
+	top1    = obj1.yPos + obj1.handleOffY - hys1/2.0
 	bottom1 = top1 + hys1
 	
-	top2    = obj2.yPos + obj2.hOffY - hys2/2.0
+	top2    = obj2.yPos + obj2.handleOffY - hys2/2.0
 	bottom2 = top2 + hys2
 
 
@@ -247,8 +247,8 @@ Function ftColl_Box2Circle:Bool(obj2:ftObject, obj1:ftObject)
 	Local bp3:ftVec2Dp = New ftVec2Dp
 	Local bp4:ftVec2Dp = New ftVec2Dp	
 
-	obj1X = obj1.xPos + obj1.hOffX
-	obj1Y = obj1.yPos + obj1.hOffY
+	obj1X = obj1.xPos + obj1.handleOffX
+	obj1Y = obj1.yPos + obj1.handleOffY
 	
 	If ftColl_PointInsidePolygon(obj2, obj1X, obj1Y) Then Return True
 	
@@ -280,8 +280,8 @@ Function ftColl_Circle2Box:Bool(obj1:ftObject, obj2:ftObject)
 	Local bp3:ftVec2Dp = New ftVec2Dp
 	Local bp4:ftVec2Dp = New ftVec2Dp
 	
-	obj1X = obj1.xPos + obj1.hOffX
-	obj1Y = obj1.yPos + obj1.hOffY
+	obj1X = obj1.xPos + obj1.handleOffX
+	obj1Y = obj1.yPos + obj1.handleOffY
 
 	If ftColl_PointInsidePolygon(obj2, obj1X, obj1Y) Then Return True
 
@@ -309,9 +309,9 @@ Function ftColl_Circle2Circle:Bool(obj1:ftObject, obj2:ftObject)
 	Local yf:Float
 	Local rf:Float
 	
-	xf = (obj1.xPos + obj1.hOffX) - (obj2.xPos + obj2.hOffX)
+	xf = (obj1.xPos + obj1.handleOffX) - (obj2.xPos + obj2.handleOffX)
 	xf *= xf
-	yf = (obj1.yPos + obj1.hOffY) - (obj2.yPos + obj2.hOffY)
+	yf = (obj1.yPos + obj1.handleOffY) - (obj2.yPos + obj2.handleOffY)
 	yf *= yf
 	rf = ( obj1.radius * obj1.scaleX  * obj1.collScale) + ( obj2.radius * obj2.scaleX * obj2.collScale )
 	rf *= rf
@@ -325,9 +325,9 @@ Function ftColl_Circle2CircleInBox:Bool(obj1:ftObject, obj2:ftObject)
 	Local yf:Float
 	Local rf:Float
 	
-	xf = (obj1.xPos + obj1.hOffX) - (obj2.xPos + obj2.hOffX)
+	xf = (obj1.xPos + obj1.handleOffX) - (obj2.xPos + obj2.handleOffX)
 	xf *= xf
-	yf = (obj1.yPos + obj1.hOffY) - (obj2.yPos + obj2.hOffY)
+	yf = (obj1.yPos + obj1.handleOffY) - (obj2.yPos + obj2.handleOffY)
 	yf *= yf
 	rf = ((obj1.radius * obj1.scaleX  * obj1.collScale) + (obj2.radius * obj2.scaleX * obj2.collScale)) * 1.42
 	rf *= rf
@@ -343,8 +343,8 @@ Function ftColl_Circle2LineObj:Bool(obj1:ftObject, obj2:ftObject)
 	Local bp1:ftVec2Dp = New ftVec2Dp
 	Local bp2:ftVec2Dp = New ftVec2Dp
 	      
-	obj1X = obj1.xPos + obj1.hOffX
-	obj1Y = obj1.yPos + obj1.hOffY
+	obj1X = obj1.xPos + obj1.handleOffX
+	obj1Y = obj1.yPos + obj1.handleOffY
 	rf = obj1.radius * obj1.scaleX * obj1.collScale
 	bp1.x = obj2.x1c * obj2.collScale + obj2.xPos
 	bp1.y = obj2.y1c * obj2.collScale + obj2.yPos
@@ -515,9 +515,9 @@ Function ftColl_PointInsideBound:Bool(obj:ftObject, px:Float, py:Float)
 	
 	wxs = obj.w * obj.scaleX * obj.collScale
 	hys = obj.h * obj.scaleY * obj.collScale
-	l =  obj.xPos + obj.hOffX - (wxs/2.0)
+	l =  obj.xPos + obj.handleOffX - (wxs/2.0)
 	r =  l + wxs
-	t =  obj.yPos + obj.hOffY  - (hys/2.0)
+	t =  obj.yPos + obj.handleOffY  - (hys/2.0)
 	b += t + hys
 	If px < l Or px > r Or py < t Or py > b Then Return False
 	Return True
@@ -529,9 +529,9 @@ Function ftColl_PointInsideCircle:Bool(obj:ftObject, _px:Float, _py:Float)
 	Local yf:Float
 	Local rf:Float
 	
-	xf = (obj.xPos + obj.hOffX - _px)
+	xf = (obj.xPos + obj.handleOffX - _px)
 	xf = (xf * xf)
-	yf = (obj.yPos + obj.hOffY - _py)
+	yf = (obj.yPos + obj.handleOffY - _py)
 	yf = (yf * yf)
 	rf = (obj.radius * obj.scaleX * obj.collScale)
 	rf = (rf * rf)
@@ -560,9 +560,9 @@ Function ftColl_PointInsidePolygon:Bool(obj:ftObject, px:Float, py:Float)
 	py =(cy*CosVal) + (cx*SinVal) + obj.yPos
 	wxs = obj.w * obj.scaleX * obj.collScale
 	hys = obj.h * obj.scaleY * obj.collScale
-	l =  obj.xPos + obj.hOffX - (wxs/2.0)
+	l =  obj.xPos + obj.handleOffX - (wxs/2.0)
 	r =  l + wxs
-	t =  obj.yPos + obj.hOffY - (hys/2.0)
+	t =  obj.yPos + obj.handleOffY - (hys/2.0)
 	b += t + hys
 	If px < l Or px > r Or py < t Or py > b Then Return False
 	Return True

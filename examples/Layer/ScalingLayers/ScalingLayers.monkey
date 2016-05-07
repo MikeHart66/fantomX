@@ -4,7 +4,7 @@ Strict
 	Script:			ScalingLayers.monkey
 	Description:	FantomX sample script that shows how to scale and position layers
 	Author: 		Michael Hartlef
-	Version:      	2.0
+	Version:      	2.01
 #End
 
 ' Set the AutoSuspend functionality to TRUE so OnResume/OnSuspend are called
@@ -89,6 +89,10 @@ Class cGame Extends App
 		
 		' Scale layer2 to half of its size
 		layer2.SetScale(0.5)
+		
+		' Some instructions
+		Print ("Press UP/DOWN/LEFT/RIGHT/ENTER to position the layer")
+		Print ("Press Q/W/E to scale the layer")
 		
 		Return 0
 	End

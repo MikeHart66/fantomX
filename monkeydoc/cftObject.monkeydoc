@@ -1116,7 +1116,7 @@ Turn the animation of an animated object on/off.
 
 Links: [[GetAnimated]]
 
-# Method SetBlendMode:Void(blendmode:Int = BlendMode.Opaque)
+# Method SetBlendMode:Void(_blendmode:Int = BlendMode.Opaque)
 
 *Description*
 
@@ -1205,7 +1205,7 @@ Set with which collision groups an object can collide.
 
 Indexes go from 1 to 32.
 
-# Method SetColWith:Void(index:Int,boolFlag:Int)
+# Method SetColWith:Void(index:Int, boolFlag:Int)
 
 *Description*
 
@@ -1289,15 +1289,11 @@ The handle determines the relative position of the objects hotspot (images, prim
 
 A handle of 0.5/0.5 is in the center of the object. A handle of 0.0/0.0 is at the top left corner.
 
-# Method SetHeight:Void(height:Float)
+# Method SetHeight:Void(height:Float, scaleMode:Bool = False)
 
 *Description*
 
-Set the height of an object.
-
-*Details*
-
-The stored height is the result of the given parameter divided by the current Y scale factor.
+Set the height of an object. If scaleMode is set to true, the scalefactor is determined by comparing the height to the current height.
 
 Links: [[GetHeight]], [[SetWidth]]
 
@@ -1332,6 +1328,14 @@ Links: [[GetImage]]
 Sets a single image object (frame) of an object at the given index. Index starts at 1.
 
 Links: [[GetImageObj]]
+
+# Method SetImageScale9:Void(top:Float, bottom:Float, left:Float, right:Float)
+
+*Description*
+
+Set the 9-patch scale values of an image object in pixel. These areas are not scaled.
+
+Links: [[GetScale]], [[SetScale]]
 
 # Method SetLayer:Void(newLayer:ftLayer)
 
@@ -1413,7 +1417,7 @@ Set the radius of an object.
 
 Links: [[GetRadius]]
 
-# Method SetRenderArea:Void(renderOffsetX:Float, renderOffsetY:Float, renderWidth:Float, renderHeight:Float)
+# Method SetRenderArea:Void(_renderOffsetX:Float, _renderOffsetY:Float, _renderWidth:Float, _renderHeight:Float)
 
 *Description*
 
@@ -1547,11 +1551,11 @@ Set if an object is visible.
 
 Links: [[GetVisible]]
 
-# Method SetWidth:Void(width:Float)
+# Method SetWidth:Void(width:Float, scaleMode:Bool = False)
 
 *Description*
 
-Set the width of an object.
+Set the width of an object. If scaleMode is set to true, the scalefactor is determined by comparing the width to the current width.
 
 *Details*
 

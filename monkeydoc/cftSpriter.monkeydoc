@@ -1,0 +1,278 @@
+# Module cftSpriter
+
+...
+
+# Import fantomX
+
+# Function ImportFile:MonkeySpriter(parent:String, file:String, atlasPath:String = "", debug:Bool = False)
+
+# Class cftSpriter.MonkeySpriter
+
+# Method AngleDifference:Float(a:Float, b:Float)
+
+# Method AngleLinearInterpolation:Float(a:Float, b:Float, timeA:Float, timeB:Float, currentTime:Float)
+
+# Method Copy:MonkeySpriter()
+
+# Method Draw:Void(tween:Bool = False, drawBones:Bool = False)
+
+# Method FlipX:Void()
+
+# Method FlipY:Void()
+
+# Method GetAnimation:SpriterAnimation(animationName:String)
+
+# Method LinearInterpolation:Float(a:Float, b:Float, timeA:Float, timeB:Float, currentTime:Float)
+
+# Method New:none()
+
+# Method SetAnimation:Void(animationName:String, looping:Int = LOOPING_FALSE, mainlineKeyId:Int = 0)
+
+# Method SetLoop:Void(loop:Int)
+
+# Method SetScale:Void(scaleX:Float, scaleY:Float)
+
+# Method Update:Void(timeElapsed:Int)
+
+# Const LOOPING_FALSE:Int
+
+# Const LOOPING_PING_PONG:Int
+
+# Const LOOPING_TRUE:Int
+
+# Field angle:Float
+
+# Field animationName:String
+
+# Field currentAnimation:SpriterAnimation
+
+# Field entities:IntMap<SpriterEntity>
+
+# Field flipX:Bool
+
+# Field flipY:Bool
+
+# Field folders:IntMap<SpriterFolder>
+
+# Field mainPath:String
+
+# Field mainlineKeyId:Int
+
+# Field nextKeyTime:Int
+
+# Field textures:TextureProvider
+
+# Field timer:Timer
+
+# Field x:none
+
+# Class cftSpriter.SpriterAnimation
+
+# Method New:none()
+
+# Field finished:Bool
+
+# Field id:Int
+
+# Field length:Int
+
+# Field looping:Int
+
+# Field mainline:SpriterMainline
+
+# Field maxKey:Int
+
+# Field name:String
+
+# Field timelines:IntMap<SpriterTimeline>
+
+# Class cftSpriter.SpriterBone
+
+# Field angle:Float
+
+# Field scaleX:Float
+
+# Field scaleY:Float
+
+# Field x:Float
+
+# Field y:Float
+
+# Class cftSpriter.SpriterBoneRef
+
+# Field id:Int
+
+# Field key:Int
+
+# Field parent:Int
+
+# Field timeline:Int
+
+# Class cftSpriter.SpriterEntity
+
+# Method New:none()
+
+# Field animations:StringMap<SpriterAnimation>
+
+# Field id:Int
+
+# Field name:String
+
+# Class cftSpriter.SpriterFile
+
+# Field height:Int
+
+# Field id:Int
+
+# Field name:String
+
+# Field width:Int
+
+# Class cftSpriter.SpriterFolder
+
+# Method New:none()
+
+# Field files:IntMap<SpriterFile>
+
+# Field id:Int
+
+# Field name:String
+
+# Class cftSpriter.SpriterImporter
+
+# Class cftSpriter.SpriterKey
+
+# Method New:none()
+
+# Field boneRefs:IntMap<SpriterBoneRef>
+
+# Field bones:List<SpriterBone>
+
+# Field id:Int
+
+# Field objectRefs:IntMap<SpriterObjectRef>
+
+# Field objects:List<SpriterObject>
+
+# Field spin:Int
+
+# Field time:Int
+
+# Class cftSpriter.SpriterMainline
+
+# Method GetKey:SpriterKey(timer:Timer)
+
+# Method GetKeyViaTime:SpriterKey(time:Float)
+
+# Method New:none()
+
+# Field delay:Float
+
+# Field keyId:Int
+
+# Field keys:IntMap<SpriterKey>
+
+# Field maxDelay:Int
+
+# Field maxKey:Int
+
+# Field speed:Float
+
+# Class cftSpriter.SpriterObject
+
+# Field alpha:Float
+
+# Field angle:Float
+
+# Field file:Int
+
+# Field folder:Int
+
+# Field pivotX:Float
+
+# Field pivotY:Float
+
+# Field scaleX:Float
+
+# Field scaleY:Float
+
+# Field x:Float
+
+# Field y:Float
+
+# Class cftSpriter.SpriterObjectRef
+
+# Field id:Int
+
+# Field key:Int
+
+# Field parent:Int
+
+# Field timeline:Int
+
+# Field zIndex:Int
+
+# Class cftSpriter.SpriterTimeline
+
+# Method GetKey:SpriterKey(timer:Timer)
+
+# Method GetKeyViaTime:SpriterKey(time:Float)
+
+# Method New:none()
+
+# Field delay:Float
+
+# Field id:Int
+
+# Field keyId:Int
+
+# Field keys:IntMap<SpriterKey>
+
+# Field maxDelay:Int
+
+# Field maxKey:Int
+
+# Field name:String
+
+# Field speed:Float
+
+# Class cftSpriter.TextureProvider
+
+# Method DisplayAllStored:Void()
+
+# Method GetTexture:Image(name:String)
+
+# Method Load:Image(name:String)
+
+# Method LoadAtlas:Void(parent:String, fileName:String)
+
+# Field path:String
+
+# Class cftSpriter.Timer
+
+# Method GetTime:Float()
+
+# Method New:none()
+
+# Method Reset:Void()
+
+# Method Resume:Void()
+
+# Method Start:Void()
+
+# Method Stop:Void()
+
+# Method Update:Void(timeElapsed:Int)
+
+# Const DOWN:Int
+
+# Const UP:Int
+
+# Field count:Float
+
+# Field direction:Int
+
+# Field rate:Float
+
+# Field stopped:Bool
+

@@ -11,8 +11,6 @@
 #End
 
 Import fantomX
-'Global dbXXX:Int = 0
-
 'nav:<blockquote><nav><b>fantomX documentation</b> | <a href="index.html">Home</a> | <a href="classes.html">Classes</a> | <a href="3rdpartytools.html">3rd party tools</a> | <a href="examples.html">Examples</a> | <a href="changes.html">Changes</a></nav></blockquote>
 
 '#DOCON#
@@ -36,10 +34,10 @@ Class ftObject
 '**---------------------------------------------------------------------------------------------------------------------------------------**
 
 
-	Field rw:Float = 0.0
-	Field rh:Float = 0.0
-	Field rox:Float = 0.0
-	Field roy:Float = 0.0
+	Field renderWidth:Float = 0.0
+	Field renderHeight:Float = 0.0
+	Field renderOffX:Float = 0.0
+	Field renderOffY:Float = 0.0
 	
 	Field angle:Float = 0.0
 	Field scaleX:Float = 1.0
@@ -113,6 +111,7 @@ Class ftObject
 	Field onRenderEvent:Bool = False
 	Field onUpdateEvent:Bool = True
 	
+	' Corners of the collision box
 	Field x1c:Float = 0.0
 	Field y1c:Float = 0.0
 	Field x2c:Float = 0.0
@@ -134,18 +133,25 @@ Class ftObject
 	Field offAngle:Float = 0.0
 	Field handleX:Float = 0.5
 	Field handleY:Float = 0.5
-	Field hOffX:Float = 0.0
-	Field hOffY:Float = 0.0
+	Field handleOffX:Float = 0.0
+	Field handleOffY:Float = 0.0
 	
 	Field animMng:ftObjAnimMng = Null
 	Field currImageIndex:Int = 1
 	Field currImageFrame:Int = 1
 	
-	Field minX:Float
-	Field minY:Float
-	Field maxX:Float
-	Field maxY:Float
+	Field objMinX:Float
+	Field objMinY:Float
+	Field objMaxX:Float
+	Field objMaxY:Float
 	
+    Field scale9T:Float = 0.0
+    Field scale9B:Float = 0.0
+    Field scale9L:Float = 0.0
+    Field scale9R:Float = 0.0
+    Field scale9Type:Int = 0
+    
+    Field touchState:Int = ftEngine.tsNoTouch
 
 '#DOCON#	
 	'-----------------------------------------------------------------------------
@@ -244,15 +250,15 @@ Class ftObject
 	    Local a:Float
 		
 	    If ang = 9876.5 Then
-	        a = angle
+	        a = Self.angle
 	    Else
 	        a = ang
 	    Endif
 
-	    speedX = speedX + Sin(a) * sp
-	    speedY = speedY - Cos(a) * sp
+	    Self.speedX = Self.speedX + Sin(a) * sp
+	    Self.speedY = Self.speedY - Cos(a) * sp
 	
-	    a= ATan2( speedY, speedX )+90.0
+	    a= ATan2( Self.speedY, Self.speedX )+90.0
 	    If a < 0.0 Then
 	        a = a + 360.0
 	    Else
@@ -260,9 +266,9 @@ Class ftObject
 			    a = a - 360.0
 	        Endif
 	    Endif
-	    speedAngle = a 
-	    speed = Sqrt(speedX * speedX + speedY * speedY)
-		If speed > speedMax Then speed = speedMax
+	    Self.speedAngle = a 
+	    Self.speed = Sqrt(Self.speedX * Self.speedX + Self.speedY * Self.speedY)
+		If Self.speed > Self.speedMax Then Self.speed = Self.speedMax
 	End
 	'-----------------------------------------------------------------------------
 'summery:Add an alpha transition to an existing transition.
@@ -292,7 +298,7 @@ Class ftObject
 'summery:Cancels all timers attached to an object.
 'seeAlso:CreateTimer,PauseTimerAll,ResumeTimerAll
 	Method CancelTimerAll:Void()
-		For Local timer := Eachin timerList 
+		For Local timer := Eachin Self.timerList 
 			timer.RemoveTimer()
 		Next
 	End
@@ -300,7 +306,7 @@ Class ftObject
 'summery:Cancels all transitions attached to an object.
 'seeAlso:PauseTransAll,ResumeTransAll
 	Method CancelTransAll:Void()
-		For Local trans := Eachin transitionList    
+		For Local trans := Eachin Self.transitionList    
 			trans.Cancel()
 		Next
 	End
@@ -591,25 +597,25 @@ ftEngine.tmBox   (Value = 3)[/list]
 'summery:Returns the active flag.
 'seeAlso:SetActive
 	Method GetActive:Bool()
-		Return isActive
+		Return Self.isActive
 	End 
 	'-----------------------------------------------------------------------------
 'summery:Get the alpha value.
 'seeAlso:SetAlpha
 	Method GetAlpha:Float()
-		Return alpha
+		Return Self.alpha
 	End 
 	'-----------------------------------------------------------------------------
 'summery:Get the angle the object is heading.
 'seeAlso:SetAngle
 	Method GetAngle:Float()
-		Return angle
+		Return Self.angle
 	End 
 	'-----------------------------------------------------------------------------
 'summery:Return the isAnimated flag.
 'seeAlso:SetAnimated
 	Method GetAnimated:Bool ()
-		Return isAnimated
+		Return Self.isAnimated
 	End
 	'-----------------------------------------------------------------------------
 'summery:Get the number of frame from the active animation.
@@ -653,11 +659,11 @@ ftEngine.tmBox   (Value = 3)[/list]
 'seeAlso:GetParent,SetParent
 	Method GetChild:ftObject (index:Int)
 		Local c:Int
-		Local cc:Int = childObjList.Count()
+		Local cc:Int = Self.childObjList.Count()
 #If CONFIG="debug"
 		If index < 1 Or index > cc Then Error ("~n~nError in file fantomX.cftObject, Method ftObject.GetChild():~n~nUsed index ("+index+") is out of bounds (1-"+cc+")")
 #End
-		For Local child := Eachin childObjList
+		For Local child := Eachin Self.childObjList
 			c += 1
 			If c = index Then Return child
 		Next
@@ -666,7 +672,7 @@ ftEngine.tmBox   (Value = 3)[/list]
 	'-----------------------------------------------------------------------------
 'summery:Returns the child count of an object.
 	Method GetChildCount:Int ()
-		Return childObjList.Count()
+		Return Self.childObjList.Count()
 	End
 	'-----------------------------------------------------------------------------
 #rem
@@ -704,7 +710,7 @@ ftEngine.tmBox   (Value = 3)[/list]
 #End
 'seeAlso:SetColGroup,SetColWith,CheckCollision
 	Method GetColGroup:Int ()
-		Return collGroup
+		Return Self.collGroup
 	End	
 	'-----------------------------------------------------------------------------
 'summery:Returns the color of an object in an array.
@@ -727,13 +733,13 @@ ftEngine.tmBox   (Value = 3)[/list]
 #End
 'seeAlso:SetColType,SetColWith,CheckCollision
 	Method GetColType:Int ()
-		Return collType
+		Return Self.collType
 	End	
 	'-----------------------------------------------------------------------------
 'summery:Returns the data object of this object.
 'seeAlso:SetDataObj
 	Method GetDataObj:Object ()
-		Return dataObj
+		Return Self.dataObj
 	End	
 	'-----------------------------------------------------------------------------
 #Rem
@@ -757,13 +763,13 @@ ftEngine.tmBox   (Value = 3)[/list]
 		Endif
 		Select edge
 			Case 1		'Bottom
-				ret = yp + ((h*Self.scaleY)/2.0)+Self.hOffY
+				ret = yp + ((Self.h*Self.scaleY)/2.0)+Self.handleOffY
 			Case 2		'Top
-				ret = yp - ((h*Self.scaleY)/2.0)+Self.hOffY
+				ret = yp - ((Self.h*Self.scaleY)/2.0)+Self.handleOffY
 			Case 3		'Left
-				ret = xp - ((w*Self.scaleX)/2.0)+Self.hOffX
+				ret = xp - ((Self.w*Self.scaleX)/2.0)+Self.handleOffX
 			Case 4		'Right
-				ret = xp + ((w*Self.scaleX)/2.0)+Self.hOffX
+				ret = xp + ((Self.w*Self.scaleX)/2.0)+Self.handleOffX
 #If CONFIG="debug"
 			Default		'Error
 				Error ("~n~nError in file fantomX.cftObject, Method ftObject.GetEdge():~n~nUsed edge value ("+edge+") is out of bounds (1-4)")
@@ -799,13 +805,13 @@ ftEngine.tmBox   (Value = 3)[/list]
 'summery:Get the friction value.
 'seeAlso:SetFriction
 	Method GetFriction:Float()
-		Return friction
+		Return Self.friction
 	End 
 	'-----------------------------------------------------------------------------
 'summery:Returns the group ID of an object.
 'seeAlso:SetGroupID
 	Method GetGroupID:Int ()
-		Return groupID
+		Return Self.groupID
 	End	
 	'-----------------------------------------------------------------------------
 #Rem
@@ -814,13 +820,13 @@ The returned value is the stored height multiplied by the Y scale factor.
 #End
 'seeAlso:,SetHeight,GetWidth
 	Method GetHeight:Float()
-		Return h*scaleY
+		Return Self.h * Self.scaleY
 	End 
 	'-----------------------------------------------------------------------------
 'summery:Returns the ID of an object.
 'seeAlso:SetID
 	Method GetID:Int ()
-		Return id
+		Return Self.id
 	End	
 	'-----------------------------------------------------------------------------
 'summery:Returns the Image of an object. The index starts with 1.
@@ -890,11 +896,11 @@ The returned value is the stored height multiplied by the Y scale factor.
 'seeAlso:GetMapObjCount
 	Method GetMapObj:ftMapObj (index:Int)
 		Local c:Int
-		Local cc:Int = tileMap.mapObjList.Count()
+		Local cc:Int = Self.tileMap.mapObjList.Count()
 #If CONFIG="debug"
 		If index < 1 Or index > cc Then Error ("~n~nError in file fantomX.cftObject, Method ftObject.GetMapObj():~n~nUsed index ("+index+") is out of bounds (1-"+cc+")")
 #End
-		For Local mapObj := Eachin tileMap.mapObjList
+		For Local mapObj := Eachin Self.tileMap.mapObjList
 			c += 1
 			If c = index Then Return mapObj
 		Next
@@ -907,14 +913,14 @@ The returned value is the stored height multiplied by the Y scale factor.
 #End
 'seeAlso:GetMapObj
 	Method GetMapObjCount:Int ()
-		Return tileMap.mapObjList.Count()
+		Return Self.tileMap.mapObjList.Count()
 	End
 
 	'-----------------------------------------------------------------------------
 'summery:Get the name of an object.
 'seeAlso:SetName
 	Method GetName:String ()
-		Return name
+		Return Self.name
 	End
 	'------------------------------------------
 'summery:Get the parent object.
@@ -927,57 +933,57 @@ The returned value is the stored height multiplied by the Y scale factor.
 'seeAlso:SetPos,GetPosX,GetPosY,GetPosZ
 	Method GetPos:Float[]()
 		Local p:Float[2]
-		p[0] = xPos
-	    p[1] = yPos
+		p[0] = Self.xPos
+	    p[1] = Self.yPos
 		Return p		
 	End
 	'-----------------------------------------------------------------------------
 'summery:Get the X position.
 'seeAlso:SetPosX,GetPos,GetPosY,GetPosZ
 	Method GetPosX:Float()
-		Return xPos
+		Return Self.xPos
 	End 
 	'-----------------------------------------------------------------------------
 'summery:Get the Y position.
 'seeAlso:SetPosY,GetPosX,GetPos,GetPosZ
 	Method GetPosY:Float()
-		Return yPos
+		Return Self.yPos
 	End 
 	'-----------------------------------------------------------------------------
 'summery:Get the Z position.
 'seeAlso:SetPosZ,GetPosX,GetPosY,GetPos
 	Method GetPosZ:Float()
-		Return zPos
+		Return Self.zPos
 	End 
 	'-----------------------------------------------------------------------------
 'summery:Returns the radius of an object.
 'seeAlso:SetRadius
 	Method GetRadius:Float()
-		Return radius*scaleX
+		Return Self.radius * Self.scaleX
 	End 
 	'-----------------------------------------------------------------------------
 'summery:Get current scale factor of an object.
 'seeAlso:SetScale,GetScaleX,GetScaleY
 	Method GetScale:Float()
-		Return scaleX
+		Return Self.scaleX
 	End 
 	'-----------------------------------------------------------------------------
 'summery:Returns the X scale factor (width) of the object.
 'seeAlso:SetScaleX,GetScale,GetScaleY
 	Method GetScaleX:Float()
-		Return scaleX
+		Return Self.scaleX
 	End 
 	'-----------------------------------------------------------------------------
 'summery:Returns the Y scale factor (height) of the object.
 'seeAlso:SetScaleY,GetScaleX,GetScale
 	Method GetScaleY:Float()
-		Return scaleY
+		Return Self.scaleY
 	End 
 	'-----------------------------------------------------------------------------
 'summery:Get current linear speed of an object.
 'seeAlso:SetSpeed,GetSpeedAngle
 	Method GetSpeed:Float()
-		Return speed
+		Return Self.speed
 	End 
 	'-----------------------------------------------------------------------------
 'summery:Get the current speed angle.
@@ -989,46 +995,46 @@ The returned value is the stored height multiplied by the Y scale factor.
 'summery:Get the max speed of an object.
 'seeAlso:SetMaxSpeed
 	Method GetSpeedMax:Float()
-		Return speedMax
+		Return Self.speedMax
 	End 
 	'-----------------------------------------------------------------------------
 'summery:Get the minimum speed of an object.
 'seeAlso:SetMinSpeed
 	Method GetSpeedMin:Float()
-		Return speedMin
+		Return Self.speedMin
 	End 
 	'-----------------------------------------------------------------------------
 'summery:Get the current X speed.
 'seeAlso:SetSpeedX,GetSpeed,GetSpeedY,GetSpeedXY
 	Method GetSpeedX:Float()
-		Return speedX
+		Return Self.speedX
 	End 
 	'-----------------------------------------------------------------------------
 'summery:Get current the X and Y speed of a 2D Float array.
 'seeAlso:SetSpeed,GetSpeed,GetSpeedX,GetSpeedY
 	Method GetSpeedXY:Float[]()
 		Local sp:Float[2]
-		sp[0] = speedX
-	    sp[1] = speedY
+		sp[0] = Self.speedX
+	    sp[1] = Self.speedY
 		Return sp		
 	End
 	'-----------------------------------------------------------------------------
 'summery:Get the current Y speed.
 'seeAlso:SetSpeedY,GetSpeed,GetSpeedXX
 	Method GetSpeedY:Float()
-		Return speedY
+		Return Self.speedY
 	End 
 	'-----------------------------------------------------------------------------
 'summery:Get the spin speed value.
 'seeAlso:SetSpin
 	Method GetSpin:Float()
-		Return speedSpin
+		Return Self.speedSpin
 	End 
 	'-----------------------------------------------------------------------------
 'summery:Get the object tag value.
 'seeAlso:SetTag
 	Method GetTag:Int ()
-		Return tag
+		Return Self.tag
 	End	
 	'-----------------------------------------------------------------------------
 #rem
@@ -1041,8 +1047,8 @@ The returned value is the stored height multiplied by the Y scale factor.
 		Local ydiff:Float 
 		Local ang:Float
 			
-		xdiff = targetObj.xPos - xPos
-		ydiff = targetObj.yPos - yPos
+		xdiff = targetObj.xPos - Self.xPos
+		ydiff = targetObj.yPos - Self.yPos
 			
     	ang = ATan2( ydiff, xdiff )+90.0
 		If ang < 0 Then 
@@ -1069,8 +1075,8 @@ The returned value is the stored height multiplied by the Y scale factor.
 		Local ydiff:Float 
 		Local dist:Float
 		
-		xdiff = targetObj.xPos - xPos
-		ydiff = targetObj.yPos - yPos
+		xdiff = targetObj.xPos - Self.xPos
+		ydiff = targetObj.yPos - Self.yPos
 		
 		dist = Sqrt(xdiff * xdiff + ydiff * ydiff)
 		If useRadius = True Then
@@ -1083,7 +1089,7 @@ The returned value is the stored height multiplied by the Y scale factor.
 'summery:Get the text field of an object.
 'seeAlso:SetText
 	Method GetText:String ()
-		Return text
+		Return Self.text
 	End
 	'-----------------------------------------------------------------------------
 #Rem
@@ -1171,12 +1177,12 @@ It returns -1 if there is no tile.
 'summery:Returns the touchmode of an object.
 'seeAlso:SetTouchMode,CheckTouchHit
 	Method GetTouchMode:Int()
-		Return touchMode
+		Return Self.touchMode
 	End
 	'-----------------------------------------------------------------------------
 'summery:Returns the amount of active transitions of an object.
 	Method GetTransitionCount:Int ()
-		Return transitionList.Count()
+		Return Self.transitionList.Count()
 	End
 	'-----------------------------------------------------------------------------
 #Rem
@@ -1207,12 +1213,12 @@ The value of the type of an object can be one of the following ones:
 		Local v:Float[2]
 		Local a:Float
 		If relative = True Then
-			a = angle + vecAngle
+			a = Self.angle + vecAngle
 		Else
 			a = vecAngle
 		Endif
-	    v[0] = xPos + Sin(a) * vecDistance
-	    v[1] = yPos - Cos(a) * vecDistance
+	    v[0] = Self.xPos + Sin(a) * vecDistance
+	    v[1] = Self.yPos - Cos(a) * vecDistance
 		Return v		
 	End
 	'-----------------------------------------------------------------------------
@@ -1224,8 +1230,8 @@ The value of the type of an object can be one of the following ones:
 		Local dist:Float
 		Local ang:Float
 			
-		xdiff = vecXPos - xPos
-		ydiff = vecYPos - yPos
+		xdiff = vecXPos - Self.xPos
+		ydiff = vecYPos - Self.yPos
 			
     	ang = ATan2( ydiff, xdiff )+90.0
 		If ang < 0 Then 
@@ -1249,8 +1255,8 @@ The value of the type of an object can be one of the following ones:
 		Local ydiff:Float 
 		Local dist:Float
 		
-		xdiff = vecXPos - xPos
-		ydiff = vecYPos - yPos
+		xdiff = vecXPos - Self.xPos
+		ydiff = vecYPos - Self.yPos
 		
 		dist = Sqrt(xdiff * xdiff + ydiff * ydiff)
 		
@@ -1260,7 +1266,7 @@ The value of the type of an object can be one of the following ones:
 'summery:Returns the visible flag.
 'seeAlso:SetVisible
 	Method GetVisible:Bool()
-		Return isVisible
+		Return Self.isVisible
 	End 
 	'-----------------------------------------------------------------------------
 #Rem
@@ -1269,13 +1275,13 @@ The returned value is the stored width multiplied by the X scale factor.
 #End
 'seeAlso:SetWidth,GetHeight
 	Method GetWidth:Float()
-		Return w*scaleX
+		Return Self.w * Self.scaleX
 	End 
 	'-----------------------------------------------------------------------------
 'summery:Pause all timer of an object.
 'seeAlso:CreateTimer,CancelTimerAll,ResumeTimerAll
 	Method PauseTimerAll:Void()
-		For Local timer := Eachin timerList 
+		For Local timer := Eachin Self.timerList 
 			timer.SetPaused(True)
 		Next
 	End
@@ -1283,7 +1289,7 @@ The returned value is the stored width multiplied by the X scale factor.
 'summery:Pause all  transitions attached to an object.
 'seeAlso:CancelTransAll,ResumeTransAll
 	Method PauseTransAll:Void()
-		For Local trans := Eachin transitionList    
+		For Local trans := Eachin Self.transitionList    
 			trans.SetPaused(True)
 		Next
 	End
@@ -1291,13 +1297,13 @@ The returned value is the stored width multiplied by the X scale factor.
 'summery:Removes an object.
 'seeAlso:ActivateDeleteEvent
 	Method Remove:Void(directFlag:Bool = False)
-		For Local child := Eachin childObjList
+		For Local child := Eachin Self.childObjList
 			child.Remove(directFlag)
 		Next
-		For Local trans := Eachin transitionList
+		For Local trans := Eachin Self.transitionList
 			trans.Cancel()
 		Next
-		For Local timer := Eachin timerList
+		For Local timer := Eachin Self.timerList
 			timer.RemoveTimer()
 		Next
 		If directFlag = True Then
@@ -1333,6 +1339,7 @@ The returned value is the stored width multiplied by the X scale factor.
 
 	End
 	'------------------------------------------
+'changes:2.02:Added support for 9-slice scaling of images. 
 'changes:2.01:Fixed layer scaling and object culling. 
 'summery:Renders an object.
 	Method Render:Void(xoff:Float=0.0, yoff:Float=0.0)
@@ -1400,13 +1407,13 @@ The returned value is the stored width multiplied by the X scale factor.
 				tempScaleX = Self.scaleX * layerScale
 			Endif 
 			
-			px = (Self.hOffX + xPos) * layerScale + xoff
-			py = (Self.hOffY + yPos) * layerScale + yoff
+			px = (Self.handleOffX + xPos) * layerScale + xoff
+			py = (Self.handleOffY + yPos) * layerScale + yoff
 			
-			mxcl = (Self.maxX * layerScale) + px + Self.w/2.0*Self.scaleX*layerScale
-			mxcr = (Self.minX * layerScale) + px - Self.w/2.0*Self.scaleX*layerScale
-			myct = (Self.maxY * layerScale) + py + Self.h/2.0*Self.scaleY*layerScale
-			mycb = (Self.minY * layerScale) + py - Self.h/2.0*Self.scaleY*layerScale
+			mxcl = (Self.objMaxX * layerScale) + px + Self.w/2.0*Self.scaleX*layerScale
+			mxcr = (Self.objMinX * layerScale) + px - Self.w/2.0*Self.scaleX*layerScale
+			myct = (Self.objMaxY * layerScale) + py + Self.h/2.0*Self.scaleY*layerScale
+			mycb = (Self.objMinY * layerScale) + py - Self.h/2.0*Self.scaleY*layerScale
 			
 			If type <> ftEngine.otTileMap
 			
@@ -1461,98 +1468,68 @@ The returned value is the stored width multiplied by the X scale factor.
 								Self.engine.currentCanvas.PopMatrix								
 			
 							Case ftEngine.otImage
-								'px = Self.hOffX+xPos+xoff
-								'py = Self.hOffY+yPos+yoff
-								'If (maxX+px+w/2.0*scaleX)>=0 And (minX+px-w/2.0*scaleX) <= engine.canvasWidth Then
-									'If (maxY+py+h/2.0*scaleY)>=0 And (minY+py-h/2.0*scaleY) <= engine.canvasHeight Then
-										Self.engine.currentCanvas.PushMatrix
-										Self.engine.currentCanvas.TranslateRotateScale( px, py, 360-angle+offAngle, tempScaleX, tempScaleY )
-										Self.engine.currentCanvas.DrawRect(-Self.w/2.0, -Self.h/2.0, Self.objImg[Self.currImageIndex-1].img[Self.currImageFrame-1], rox, roy, rw, rh )
-										Self.engine.currentCanvas.PopMatrix								
+								Self.engine.currentCanvas.PushMatrix
+								If Self.scale9Type = 0
+									Self.engine.currentCanvas.TranslateRotateScale( px, py, 360-angle+offAngle, tempScaleX, tempScaleY )
+									Self.engine.currentCanvas.DrawRect(-Self.w/2.0, -Self.h/2.0, Self.objImg[Self.currImageIndex-1].img[Self.currImageFrame-1], Self.renderOffX, Self.renderOffY, Self.renderWidth, Self.renderHeight )
+								Else
+				'If Self.GetID()=0				
+				'	Print("xPos="+xPos+" : layerScale="+layerScale+" : xoff="+xoff+" : handleOffX="+handleOffX+" : handleX="+Self.handleX+" : w="+Self.w+" : renderWidth="+Self.renderWidth+" : scaleX="+Self.scaleX)
+				'	Self.SetID(999)
+				'Endif
 			
-									'Endif
-								'Endif
-							Case ftEngine.otTileMap
-#rem							
-								_cw = engine.GetCanvasWidth()
-								_ch = engine.GetCanvasHeight()
-								tempScaleX = tempScaleX + Self.tileMap.tileModSX
-								tempScaleY = tempScaleY + Self.tileMap.tileModSY
-								
-								tlW = Self.tileMap.tileSizeX * Self.scaleX
-								tlH = Self.tileMap.tileSizeY * Self.scaleY
-								tlW2 = tlW/2.0
-								tlH2 = tlH/2.0
-								drawAngle = 360.0-Self.angle
-								
-								'Determine the first and last x/y coordinate
-								Local xFirst:Int = 1
-								Local xLast:Int = Self.tileMap.tileCountX
-								Local yFirst:Int = 1
-								Local yLast:Int = Self.tileMap.tileCountY
-								
-								If Self.tileMap.tiles[0].tileType = 0
-									'Determine the first x coordinates
-									For ytX = 1 To Self.tileMap.tileCountX
-										tlxPos = xoff+xPos+Self.tileMap.tiles[ytX-1].xOff * Self.scaleX
-										If (tlxPos+tlW2)>=0 And (tlxPos-tlW2)<=_cw Then 
-											xFirst = ytX
-											Exit
-										Endif
-									Next
+#rem
+									Self.engine.currentCanvas.TranslateRotateScale( (xPos*layerScale + xoff - Self.w*Self.handleX*Self.scaleX*layerScale), (yPos*layerScale + yoff - Self.h*Self.handleY*Self.scaleY*layerScale), 360-angle+offAngle,layerScale, layerScale )
+									'TopLeft
+									Self.engine.currentCanvas.DrawRect(0                                 , 0, Self.objImg[Self.currImageIndex-1].img[Self.currImageFrame-1],                 0, 0, Self.scale9L, Self.scale9T )
+									'TopMid
+									Self.engine.currentCanvas.DrawRect(Self.scale9L                      , 0, Self.w*Self.scaleX - Self.scale9L - Self.scale9R, Self.scale9T, Self.objImg[Self.currImageIndex-1].img[Self.currImageFrame-1], Self.scale9L, 0, Self.w - Self.scale9L - Self.scale9R, Self.scale9T )
+									'TopRight
+									Self.engine.currentCanvas.DrawRect(Self.w*Self.scaleX - Self.scale9R , 0, Self.objImg[Self.currImageIndex-1].img[Self.currImageFrame-1], Self.w - Self.scale9R, 0, Self.scale9R, Self.scale9T )
 									
-									'Determine the last X coordinates
-									For ytX = (xFirst+1) To Self.tileMap.tileCountX
-										tlxPos = xoff+xPos+Self.tileMap.tiles[ytX-1].xOff * Self.scaleX
-										If (tlxPos+tlW2)<0 Or (tlxPos-tlW2)>_cw Then 
-											xLast = ytX-1
-											Exit
-										Endif
-									Next
+									'MiddleLeft
+									Self.engine.currentCanvas.DrawRect(0                                 , Self.scale9T, Self.scale9L, Self.h*Self.scaleY - Self.scale9T - Self.scale9B, Self.objImg[Self.currImageIndex-1].img[Self.currImageFrame-1],                     0, Self.scale9T, Self.scale9L, Self.h -Self.scale9T - Self.scale9B )
+									'MiddleMid
+									Self.engine.currentCanvas.DrawRect(Self.scale9L                      , Self.scale9T, Self.w*Self.scaleX -Self.scale9L - Self.scale9R, Self.h*Self.scaleY - Self.scale9T - Self.scale9B,Self.objImg[Self.currImageIndex-1].img[Self.currImageFrame-1], Self.scale9L     , Self.scale9T, Self.w - Self.scale9L - Self.scale9R, Self.h - Self.scale9T - Self.scale9B )
+									'MiddleRight
+									Self.engine.currentCanvas.DrawRect(Self.w*Self.scaleX - Self.scale9R , Self.scale9T, Self.scale9R, Self.h*Self.scaleY - Self.scale9T - Self.scale9B, Self.objImg[Self.currImageIndex-1].img[Self.currImageFrame-1], Self.w - Self.scale9R, Self.scale9T, Self.scale9R,  Self.h -Self.scale9T - Self.scale9B )
 									
-									'Determine the first y coordinates
-									For ytY = 1 To Self.tileMap.tileCountY
-										tilePos = (ytY-1)*Self.tileMap.tileCountX
-										tlyPos = yoff+yPos+Self.tileMap.tiles[tilePos].yOff * Self.scaleY
-										If (tlyPos+tlH2)>=0 And (tlyPos-tlH2)<=_ch Then 
-											yFirst = ytY
-											Exit
-										Endif
-									Next
+									'BottomLeft
+									Self.engine.currentCanvas.DrawRect(0                                 , Self.h*Self.scaleY - Self.scale9B, Self.objImg[Self.currImageIndex-1].img[Self.currImageFrame-1],                 0, Self.h - Self.scale9B, Self.scale9L, Self.scale9B )
+									'BottomMid
+									Self.engine.currentCanvas.DrawRect(Self.scale9L                      , Self.h*Self.scaleY - Self.scale9B, Self.w*Self.scaleX-Self.scale9L-Self.scale9R, Self.scale9B, Self.objImg[Self.currImageIndex-1].img[Self.currImageFrame-1],      Self.scale9L, Self.h - Self.scale9B, Self.w - Self.scale9L - Self.scale9R, Self.scale9B )
+									'BottomRight
+									Self.engine.currentCanvas.DrawRect(Self.w*Self.scaleX - Self.scale9R , Self.h*Self.scaleY - Self.scale9B, Self.objImg[Self.currImageIndex-1].img[Self.currImageFrame-1], Self.w - Self.scale9R, Self.h - Self.scale9B, Self.scale9R, Self.scale9B )
+#end
+									Local xo2:Float
+									xo2 = - Self.w*Self.handleX*Self.scaleX
+									Local yo2:Float
+									yo2 =  - Self.h*Self.handleY*Self.scaleY
+									Self.engine.currentCanvas.TranslateRotateScale( (xPos*layerScale + xoff), (yPos*layerScale + yoff), 360-angle+offAngle,layerScale, layerScale )
+									'TopLeft
+									Self.engine.currentCanvas.DrawRect(0 +xo2                                , 0 +yo2, Self.objImg[Self.currImageIndex-1].img[Self.currImageFrame-1],                 0, 0, Self.scale9L, Self.scale9T )
+									'TopMid
+									Self.engine.currentCanvas.DrawRect(Self.scale9L +xo2                      , 0 +yo2, Self.w*Self.scaleX - Self.scale9L - Self.scale9R, Self.scale9T, Self.objImg[Self.currImageIndex-1].img[Self.currImageFrame-1], Self.scale9L, 0, Self.w - Self.scale9L - Self.scale9R, Self.scale9T )
+									'TopRight
+									Self.engine.currentCanvas.DrawRect(Self.w*Self.scaleX - Self.scale9R +xo2 , 0 +yo2, Self.objImg[Self.currImageIndex-1].img[Self.currImageFrame-1], Self.w - Self.scale9R, 0, Self.scale9R, Self.scale9T )
 									
-									'Determine the last Y coordinates
-									For ytY = (yFirst+1) To Self.tileMap.tileCountY
-										tilePos = (ytY-1)*Self.tileMap.tileCountX
-										tlyPos = yoff+yPos+Self.tileMap.tiles[tilePos].yOff * Self.scaleY
-										If (tlyPos+tlH2)<0 Or (tlyPos-tlH2)>_ch Then 
-											yLast = ytY-1
-											Exit
-										Endif
-									Next
+									'MiddleLeft
+									Self.engine.currentCanvas.DrawRect(0 +xo2                                 , Self.scale9T +yo2, Self.scale9L, Self.h*Self.scaleY - Self.scale9T - Self.scale9B, Self.objImg[Self.currImageIndex-1].img[Self.currImageFrame-1],                     0, Self.scale9T, Self.scale9L, Self.h -Self.scale9T - Self.scale9B )
+									'MiddleMid
+									Self.engine.currentCanvas.DrawRect(Self.scale9L +xo2                      , Self.scale9T +yo2, Self.w*Self.scaleX -Self.scale9L - Self.scale9R, Self.h*Self.scaleY - Self.scale9T - Self.scale9B,Self.objImg[Self.currImageIndex-1].img[Self.currImageFrame-1], Self.scale9L     , Self.scale9T, Self.w - Self.scale9L - Self.scale9R, Self.h - Self.scale9T - Self.scale9B )
+									'MiddleRight
+									Self.engine.currentCanvas.DrawRect(Self.w*Self.scaleX - Self.scale9R +xo2 , Self.scale9T +yo2, Self.scale9R, Self.h*Self.scaleY - Self.scale9T - Self.scale9B, Self.objImg[Self.currImageIndex-1].img[Self.currImageFrame-1], Self.w - Self.scale9R, Self.scale9T, Self.scale9R,  Self.h -Self.scale9T - Self.scale9B )
 									
-								Endif
-								
-								' Now draw the map
-								For ytY = yFirst To yLast
-									For ytX = xFirst To xLast							
-										tilePos = (ytX-1)+(ytY-1)*Self.tileMap.tileCountX
-										tileSetIndex = Self.tileMap.tiles[tilePos].tileSetIndex
-										tileIDx = Self.tileMap.tiles[tilePos].tileID
-										If tileIDx >= 0
-											tileIDx = tileIDx-Self.tileMap.tileSets[tileSetIndex].firstGID+1
-										Endif
-			
-										If tileIDx <> - 1 Then
-											tlxPos = xoff+xPos+Self.tileMap.tiles[tilePos].xOff * Self.scaleX + (Self.tileMap.tiles[tilePos].sizeX/2-Self.tileMap.tileSizeX/2)
-											tlyPos = yoff+yPos+Self.tileMap.tiles[tilePos].yOff * Self.scaleY - (Self.tileMap.tiles[tilePos].sizeY/2-Self.tileMap.tileSizeY/2)
-											
-										    'DrawImageRect( Self.objImg[tileSetIndex].img, tlxPos, tlyPos, tileMap.tileSpacing, tileMap.tileSpacing, Self.tileMap.tileSets[tileSetIndex].tilewidth-tileMap.tileSpacing, Self.tileMap.tileSets[tileSetIndex].tileheight-tileMap.tileSpacing, drawAngle, tempScaleX, tempScaleY, tileIDx)										
-										    Self.engine.currentCanvas.DrawImage( Self.objImg[tileSetIndex].img[tileIDx], tlxPos, tlyPos, drawAngle, tempScaleX, tempScaleY)										
-										Endif
-									Next
-								Next	
-			'dbXXX = 1		
-#End				
+									'BottomLeft
+									Self.engine.currentCanvas.DrawRect(0 +xo2                                 , Self.h*Self.scaleY - Self.scale9B +yo2, Self.objImg[Self.currImageIndex-1].img[Self.currImageFrame-1],                 0, Self.h - Self.scale9B, Self.scale9L, Self.scale9B )
+									'BottomMid
+									Self.engine.currentCanvas.DrawRect(Self.scale9L +xo2                      , Self.h*Self.scaleY - Self.scale9B +yo2, Self.w*Self.scaleX-Self.scale9L-Self.scale9R, Self.scale9B, Self.objImg[Self.currImageIndex-1].img[Self.currImageFrame-1],      Self.scale9L, Self.h - Self.scale9B, Self.w - Self.scale9L - Self.scale9R, Self.scale9B )
+									'BottomRight
+									Self.engine.currentCanvas.DrawRect(Self.w*Self.scaleX - Self.scale9R +xo2 , Self.h*Self.scaleY - Self.scale9B +yo2, Self.objImg[Self.currImageIndex-1].img[Self.currImageFrame-1], Self.w - Self.scale9R, Self.h - Self.scale9B, Self.scale9R, Self.scale9B )
+
+								Endif							
+								Self.engine.currentCanvas.PopMatrix	
+
 							Case ftEngine.otCircle
 								Self.engine.currentCanvas.PushMatrix
 								Self.engine.currentCanvas.Translate ((xPos*layerScale+xoff), (yPos*layerScale+yoff)) 
@@ -1562,21 +1539,13 @@ The returned value is the stored width multiplied by the X scale factor.
 								Self.engine.currentCanvas.PopMatrix
 			
 							Case ftEngine.otBox
-								'px = Self.hOffX+xPos+xoff
-								'py = Self.hOffY+yPos+yoff
-								'If (maxX+px+w/2.0*scaleX)>=0 And (minX+px-w/2.0*scaleX) <= engine.canvasWidth Then
-									'If (maxY+py+h/2.0*scaleY)>=0 And (minY+py-h/2.0*scaleY) <= engine.canvasHeight Then
-									
-										Self.engine.currentCanvas.PushMatrix
-										Self.engine.currentCanvas.Translate ((xPos*layerScale+xoff), (yPos*layerScale+yoff)) 
-										Self.engine.currentCanvas.Rotate 360.0-angle
-										Self.engine.currentCanvas.Scale (Self.scaleX*layerScale, Self.scaleY*layerScale)
-										Self.engine.currentCanvas.DrawRect -w*Self.handleX, -h*Self.handleY, w, h
-										Self.engine.currentCanvas.PopMatrix
-										
-									'Endif
-								'Endif
-								
+								Self.engine.currentCanvas.PushMatrix
+								Self.engine.currentCanvas.Translate ((xPos*layerScale+xoff), (yPos*layerScale+yoff)) 
+								Self.engine.currentCanvas.Rotate 360.0-angle
+								Self.engine.currentCanvas.Scale (Self.scaleX*layerScale, Self.scaleY*layerScale)
+								Self.engine.currentCanvas.DrawRect -w*Self.handleX, -h*Self.handleY, w, h
+								Self.engine.currentCanvas.PopMatrix
+							
 							Case ftEngine.otText
 								Self.engine.currentCanvas.PushMatrix
 								Self.engine.currentCanvas.Translate ((xPos*layerScale+xoff), (yPos*layerScale+yoff))
@@ -1749,11 +1718,10 @@ The returned value is the stored width multiplied by the X scale factor.
 						Endif
 					Next
 				Next	
-			'dbXXX = 1			
 			Endif
 			
-			If Self.onRenderEvent = True Then engine.OnObjectRender(Self)
-			For Local child := Eachin childObjList
+			If Self.onRenderEvent = True Then Self.engine.OnObjectRender(Self)
+			For Local child := Eachin Self.childObjList
 				If child.isVisible And child.isActive Then child.Render(xoff, yoff)
 			Next
 		Endif
@@ -1762,7 +1730,7 @@ The returned value is the stored width multiplied by the X scale factor.
 'summery:Resume all paused timer of an object.
 'seeAlso:PauseTimerAll,CancelTimerAll,CreateTimer
 	Method ResumeTimerAll:Void()
-		For Local timer := Eachin timerList 
+		For Local timer := Eachin Self.timerList 
 			timer.SetPaused(False)
 		Next
 	End
@@ -1770,7 +1738,7 @@ The returned value is the stored width multiplied by the X scale factor.
 'summery:Resume all  transitions attached to an object.
 'seeAlso:PauseTransAll,CancelTransAll
 	Method ResumeTransAll:Void()
-		For Local trans := Eachin transitionList    
+		For Local trans := Eachin Self.transitionList    
 			trans.SetPaused(False)
 		Next
 	End
@@ -1779,9 +1747,9 @@ The returned value is the stored width multiplied by the X scale factor.
 'summery:Set the active flag.
 'seeAlso:GetActive
 	Method SetActive:Void (activeFlag:Bool = True, children:Bool = False )
-		isActive = activeFlag
+		Self.isActive = activeFlag
 		If children = True
-			For Local child := Eachin childObjList
+			For Local child := Eachin Self.childObjList
 				child.SetActive(activeFlag, children)
 			Next
 		Endif
@@ -1796,12 +1764,12 @@ The returned value is the stored width multiplied by the X scale factor.
 'seeAlso:GetAlpha,SetColor
 	Method SetAlpha:Void(newAlpha:Float, relative:Int=False)
 		If relative=True Then
-			alpha += newAlpha
+			Self.alpha += newAlpha
 		Else
-			alpha = newAlpha
+			Self.alpha = newAlpha
 		Endif
-		If alpha < 0.0 Then alpha = 0.0
-		If alpha > 1.0 Then alpha = 1.0
+		If Self.alpha < 0.0 Then Self.alpha = 0.0
+		If Self.alpha > 1.0 Then Self.alpha = 1.0
 	End
 	'------------------------------------------
 'summery:Set the objects angle.
@@ -1810,12 +1778,12 @@ The returned value is the stored width multiplied by the X scale factor.
 		Local angDiff:Float
 		If relative = True
 			angDiff = newAngle
-			angle = angle + newAngle
+			Self.angle = angle + newAngle
 		Else
-			angDiff = newAngle - angle
-			angle = newAngle
+			angDiff = newAngle - Self.angle
+			Self.angle = newAngle
 		Endif
-		For Local child := Eachin childObjList
+		For Local child := Eachin Self.childObjList
 			child._OrbitChild(angDiff)
 			child.SetAngle(newAngle, relative)
 		Next
@@ -1878,11 +1846,11 @@ Normally it is set from loading an image from a sprite atlas where the image is 
 [*]BlendMode.Multiply2:=4[/list]
 #end
 'seeAlso:GetBlendMode
-	Method SetBlendMode:Void (blendmode:Int = BlendMode.Opaque)
+	Method SetBlendMode:Void (_blendmode:Int = BlendMode.Opaque)
 #If CONFIG="debug"
-		If blendmode < BlendMode.Opaque Or blendmode > BlendMode.Multiply2 Then Error ("~n~nError in file fantomX.cftObject, Method ftObject.SetBlendMode(blendmode:Int = BlendMode.Opaque):~n~nUsed mode "+blendmode+" is wrong. Must be 0 or 4")
+		If _blendmode < BlendMode.Opaque Or _blendmode > BlendMode.Multiply2 Then Error ("~n~nError in file fantomX.cftObject, Method ftObject.SetBlendMode(blendmode:Int = BlendMode.Opaque):~n~nUsed mode "+_blendmode+" is wrong. Must be 0 or 4")
 #End
-		Self.blendMode = blendmode
+		Self.blendMode = _blendmode
 	End
 	'-----------------------------------------------------------------------------
 #Rem
@@ -1957,7 +1925,7 @@ A value of 0 will disable the collision, a value between 1 and 32 will set the c
 'summery:Set with which collision group an object can collide.
 'Indexes go from 1 to 32.
 #End
-	Method SetColWith:Void (index:Int,boolFlag:Int)
+	Method SetColWith:Void (index:Int, boolFlag:Int)
 		Local cc:Int = Self.collWith.Length()
 #If CONFIG="debug"
 		If index < 1 Or index > cc Then Error ("~n~nError in file fantomX.cftObject, Method ftObject.SetColWith(index, boolFlag):~n~nUsed index ("+index+") is out of bounds (1-"+cc+")")
@@ -2018,9 +1986,9 @@ A value of 0 will disable the collision, a value between 1 and 32 will set the c
 'seeAlso:GetFriction
 	Method SetFriction:Void (newFriction:Float, relative:Int = False )
 		If relative = True
-			friction += newFriction
+			Self.friction += newFriction
 		Else
-			friction = newFriction
+			Self.friction = newFriction
 		Endif
 	End	
 	'-----------------------------------------------------------------------------
@@ -2038,16 +2006,16 @@ A value of 0 will disable the collision, a value between 1 and 32 will set the c
 	Method SetHandle:Void (hx:Float, hy:Float )
 		Self.handleX = hx
 		Self.handleY = hy
-		'_RotateSpriteCol(Self)
 		_RotateSpriteCol()
 	End	
-	'-----------------------------------------------------------------------------
+'changes:2.02:Added scale mode parameter.
 #Rem
-'summery:Set the height of an object.
-The stored height is the result of the given parameter divided by the current Y scale factor.
+'summery:Set the height of an object. If scaleMode is set to true, the scalefactor is determined by comparing the height to the current height.
 #End
 'seeAlso:GetHeight,SetWidth
-	Method SetHeight:Void (height:Float )
+	Method SetHeight:Void (height:Float, scaleMode:Bool = False)
+		If scaleMode = True then	Self.scaleY = height/Self.h
+		'Self.w = width/scaleX
 		Self.h = height/scaleY
 		_RotateSpriteCol()
 	End	
@@ -2093,6 +2061,21 @@ The stored height is the result of the given parameter divided by the current Y 
 #If CONFIG="debug"
 		If Self.objImg[index-1] = Null Then Error("~n~nError in file fantomX.cftObject, Method ftObject.SetImageObj(index:Int, imageObj:ftImage):~n~nCould not assign the image object!")
 #End
+	End
+	'-----------------------------------------------------------------------------
+'changes:2.02:New method.	
+'summery:Set the 9-patch scale values of an image object in pixel. These areas are not scaled. 
+'seeAlso:GetScale, SetScale
+	Method SetImageScale9:Void (top:Float, bottom:Float, left:Float, right:Float )
+		If top=0.0 And bottom = 0.0 And left=0.0 And right=0.0 
+			Self.scale9Type = 0
+		Else
+			Self.scale9Type = 1
+			Self.scale9T = top
+			Self.scale9B = bottom
+			Self.scale9L = left
+			Self.scale9R = right
+		Endif
 	End
 	'------------------------------------------
 'summery:Set the layer of an object.
@@ -2145,22 +2128,22 @@ The stored height is the result of the given parameter divided by the current Y 
 		Local xd:Float
 		Local yd:Float
 		If relative = True Then
-			For Local child := Eachin childObjList
+			For Local child := Eachin Self.childObjList
 				child.SetPos(x, y, relative)
 			Next
 		Else
-			For Local child := Eachin childObjList
+			For Local child := Eachin Self.childObjList
 				xd = Self.xPos - child.xPos
 				yd = Self.yPos - child.yPos
 				child.SetPos(x-xd, y-yd, relative)
 			Next
 		Endif
 		If relative = True
-			xPos = xPos + x
-			yPos = yPos + y
+			Self.xPos = Self.xPos + x
+			Self.yPos = Self.yPos + y
 		Else
-			xPos = x
-			yPos = y
+			Self.xPos = x
+			Self.yPos = y
 		Endif
 	End
 	'-----------------------------------------------------------------------------
@@ -2169,19 +2152,19 @@ The stored height is the result of the given parameter divided by the current Y 
 	Method SetPosX:Void (x:Float, relative:Int = False )
 		Local xd:Float
 		If relative = True Then
-			For Local child := Eachin childObjList
+			For Local child := Eachin Self.childObjList
 				child.SetPosX(x, relative)
 			Next
 		Else
-			For Local child := Eachin childObjList
+			For Local child := Eachin Self.childObjList
 				xd = Self.xPos - child.xPos
 				child.SetPosX(x-xd, relative)
 			Next
 		Endif
 		If relative = True
-			xPos = xPos + x
+			Self.xPos = Self.xPos + x
 		Else
-			xPos = x
+			Self.xPos = x
 		Endif
 	End
 	'-----------------------------------------------------------------------------
@@ -2190,19 +2173,19 @@ The stored height is the result of the given parameter divided by the current Y 
 	Method SetPosY:Void (y:Float, relative:Int = False )
 		Local yd:Float
 		If relative = True Then
-			For Local child := Eachin childObjList
+			For Local child := Eachin Self.childObjList
 				child.SetPosY(y, relative)
 			Next
 		Else
-			For Local child := Eachin childObjList
+			For Local child := Eachin Self.childObjList
 				yd = Self.yPos - child.yPos
 				child.SetPosY(y-yd, relative)
 			Next
 		Endif
 		If relative = True
-			yPos = yPos + y
+			Self.yPos = Self.yPos + y
 		Else
-			yPos = y
+			Self.yPos = y
 		Endif
 	End
 	'-----------------------------------------------------------------------------
@@ -2211,19 +2194,19 @@ The stored height is the result of the given parameter divided by the current Y 
 	Method SetPosZ:Void (z:Float, relative:Int = False )
 		Local zd:Float
 		If relative = True Then
-			For Local child := Eachin childObjList
+			For Local child := Eachin Self.childObjList
 				child.SetPosZ(z, relative)
 			Next
 		Else
-			For Local child := Eachin childObjList
+			For Local child := Eachin Self.childObjList
 				zd = Self.zPos - child.zPos
 				child.SetPosZ(z-zd, relative)
 			Next
 		Endif
 		If relative = True
-			zPos = zPos + z
+			Self.zPos = Self.zPos + z
 		Else
-			zPos = z
+			Self.zPos = z
 		Endif
 	End
 	'-----------------------------------------------------------------------------
@@ -2231,27 +2214,27 @@ The stored height is the result of the given parameter divided by the current Y 
 'seeAlso:GetRadius
 	Method SetRadius:Void (newRadius:Float, relative:Int = False )
 		If relative = True
-			radius += newRadius/scaleX
+			Self.radius += newRadius/Self.scaleX
 		Else
-			radius = newRadius/scaleX
+			Self.radius = newRadius/Self.scaleX
 		Endif
 	End	
 	'-----------------------------------------------------------------------------
 'summery:Sets the area of an objects texture that is to be drawn.
-	Method SetRenderArea:Void (renderOffsetX:Float, renderOffsetY:Float, renderWidth:Float, renderHeight:Float)
-		If renderOffsetX + renderWidth <= w Then
-			rox = renderOffsetX
-			rw = renderWidth
+	Method SetRenderArea:Void (_renderOffsetX:Float, _renderOffsetY:Float, _renderWidth:Float, _renderHeight:Float)
+		If _renderOffsetX + _renderWidth <= Self.w Then
+			Self.renderOffX = _renderOffsetX
+			Self.renderWidth = _renderWidth
 		Else
-			rox = 0.0
-			rw = w
+			Self.renderOffX = 0.0
+			Self.renderWidth = Self.w
 		Endif
-		If renderOffsetY + renderHeight <= h Then
-			roy = renderOffsetY
-			rh = renderHeight
+		If _renderOffsetY + _renderHeight <= Self.h Then
+			Self.renderOffY = _renderOffsetY
+			Self.renderHeight = _renderHeight
 		Else
-			roy = 0.0
-			rh = h
+			Self.renderOffY = 0.0
+			Self.renderHeight = h
 		Endif
 	End
 	'-----------------------------------------------------------------------------
@@ -2260,21 +2243,21 @@ The stored height is the result of the given parameter divided by the current Y 
 	Method SetScale:Void (newScale:Float, relative:Int = False )
 		Local sd:Float
 		If relative = True Then
-			For Local child := Eachin childObjList
+			For Local child := Eachin Self.childObjList
 				child.SetScale(newScale, relative)
 			Next
 		Else
-			For Local child := Eachin childObjList
+			For Local child := Eachin Self.childObjList
 				sd = Self.scaleX - child.scaleX
 				child.SetScale(newScale-sd, relative)
 			Next
 		Endif
 		If relative = True
-			scaleX += newScale
-			scaleY += newScale
+			Self.scaleX += newScale
+			Self.scaleY += newScale
 		Else
-			scaleX = newScale
-			scaleY = newScale
+			Self.scaleX = newScale
+			Self.scaleY = newScale
 		Endif
 		_RotateSpriteCol()
 	End
@@ -2284,19 +2267,19 @@ The stored height is the result of the given parameter divided by the current Y 
 	Method SetScaleX:Void (newScale:Float, relative:Int = False )
 		Local sd:Float
 		If relative = True Then
-			For Local child := Eachin childObjList
+			For Local child := Eachin Self.childObjList
 				child.SetScaleX(newScale, relative)
 			Next
 		Else
-			For Local child := Eachin childObjList
+			For Local child := Eachin Self.childObjList
 				sd = Self.scaleX - child.scaleX
 				child.SetScaleX(newScale-sd, relative)
 			Next
 		Endif
 		If relative = True
-			scaleX += newScale
+			Self.scaleX += newScale
 		Else
-			scaleX = newScale
+			Self.scaleX = newScale
 		Endif
 		_RotateSpriteCol()
 	End
@@ -2306,19 +2289,19 @@ The stored height is the result of the given parameter divided by the current Y 
 	Method SetScaleY:Void (newScale:Float, relative:Int = False )
 		Local sd:Float
 		If relative = True Then
-			For Local child := Eachin childObjList
+			For Local child := Eachin Self.childObjList
 				child.SetScaleY(newScale, relative)
 			Next
 		Else
-			For Local child := Eachin childObjList
+			For Local child := Eachin Self.childObjList
 				sd = Self.scaleY - child.scaleY
 				child.SetScaleY(newScale-sd, relative)
 			Next
 		Endif
 		If relative = True
-			scaleY += newScale
+			Self.scaleY += newScale
 		Else
-			scaleY = newScale
+			Self.scaleY = newScale
 		Endif
 		_RotateSpriteCol()
 	End
@@ -2335,13 +2318,13 @@ The stored height is the result of the given parameter divided by the current Y 
 	        a = ang
 	    Endif
 	    a2 = a
-		If newSpeed > speedMax Then newSpeed = speedMax
-		If newSpeed < speedMin Then newSpeed = speedMin
+		If newSpeed > Self.speedMax Then newSpeed = Self.speedMax
+		If newSpeed < Self.speedMin Then newSpeed = Self.speedMin
 	
-	    speedX = Sin(a) * newSpeed
-	    speedY = -Cos(a) * newSpeed
+	    Self.speedX = Sin(a) * newSpeed
+	    Self.speedY = -Cos(a) * newSpeed
 	
-	    a= ATan2( speedY, speedX )+90.0
+	    a= ATan2( Self.speedY, Self.speedX )+90.0
 	    If a < 0.0 Then
 	        a = a + 360.0
 	    Else
@@ -2349,9 +2332,9 @@ The stored height is the result of the given parameter divided by the current Y 
 	            a = a - 360.0
 	        Endif
 	    Endif
-	    speedAngle = a2 
-	    speed = newSpeed
-		If speed > speedMax Then speed = speedMax
+	    Self.speedAngle = a2 
+	    Self.speed = newSpeed
+		If Self.speed > Self.speedMax Then Self.speed = Self.speedMax
 	End 
 	'-----------------------------------------------------------------------------
 'summery:Set the objects speed angle.
@@ -2364,17 +2347,17 @@ The stored height is the result of the given parameter divided by the current Y 
          		newAngle = newAngle - 360.0
     		Endif
 		Endif
-		speedX =  Sin(newAngle) * Self.speed
-		speedY = -Cos(newAngle) * Self.speed
-		speedAngle = newAngle
+		Self.speedX =  Sin(newAngle) * Self.speed
+		Self.speedY = -Cos(newAngle) * Self.speed
+		Self.speedAngle = newAngle
 	End 
 	'-----------------------------------------------------------------------------
 'summery:Set the objects X speed.
 'seeAlso:GetSpeedX
 	Method SetSpeedX:Void (newSpeed:Float)
     	Local a:Float
-    	speedX = Min(newSpeed, speedMax)
-    	a = ATan2( speedY, speedX ) + 90.0
+    	Self.speedX = Min(newSpeed, Self.speedMax)
+    	a = ATan2( Self.speedY, Self.speedX ) + 90.0
     	If a < 0.0 Then
         	a = a + 360.0
     	Else
@@ -2382,17 +2365,17 @@ The stored height is the result of the given parameter divided by the current Y 
 	          	a = a - 360.0
 	     	Endif
     	Endif
-		speedAngle = a 
-		speed = Sqrt(speedX * speedX + speedY * speedY)
-		If speed > speedMax Then speed = speedMax
+		Self.speedAngle = a 
+		Self.speed = Sqrt(Self.speedX * Self.speedX + Self.speedY * Self.speedY)
+		If Self.speed > Self.speedMax Then Self.speed = Self.speedMax
 	End 
 	'-----------------------------------------------------------------------------
 'summery:Set the objects Y speed.
 'seeAlso:GetSpeedY
 	Method SetSpeedY:Void (newSpeed:Float)
     	Local a:Float
-    	speedY = Min(newSpeed,speedMax)
-    	a = ATan2( speedY, speedX )+90.0
+    	Self.speedY = Min(newSpeed, Self.speedMax)
+    	a = ATan2( Self.speedY, Self.speedX ) + 90.0
     	If a < 0.0 Then
         	a = a + 360.0
     	Else
@@ -2400,18 +2383,18 @@ The stored height is the result of the given parameter divided by the current Y 
 	          	a = a - 360.0
 	     	Endif
     	Endif
-		speedAngle = a 
-		speed = Sqrt(speedX * speedX + speedY * speedY)
-		If speed > speedMax Then speed = speedMax
+		Self.speedAngle = a 
+		Self.speed = Sqrt(Self.speedX * Self.speedX + Self.speedY * Self.speedY)
+		If Self.speed > Self.speedMax Then Self.speed = Self.speedMax
 	End 
 	'-----------------------------------------------------------------------------
 'summery:Set the objects spin speed.
 'seeAlso:GetSpin
 	Method SetSpin:Void (newSpin:Float, relative:Int = False )
 		If relative = True
-			speedSpin = speedSpin + newSpin
+			Self.speedSpin = Self.speedSpin + newSpin
 		Else
-			speedSpin = newSpin
+			Self.speedSpin = newSpin
 		Endif
 	End	
 	'-----------------------------------------------------------------------------
@@ -2440,8 +2423,8 @@ The stored height is the result of the given parameter divided by the current Y 
 				Next
 			Endif
 			Self.h = Self.objFont.lineHeight * linLen
-			Self.rh = Self.h
-			Self.rw = Self.w
+			Self.renderWidth = Self.w
+			Self.renderHeight = Self.h
 			Self.radius = Max(Self.h, Self.w)/2.0
 		Endif
 	End	
@@ -2555,7 +2538,7 @@ The stored height is the result of the given parameter divided by the current Y 
 #End
 'seeAlso:GetTouchMode,CheckTouchHit
 	Method SetTouchMode:Void (touch:Int)
-		touchMode = touch
+		Self.touchMode = touch
 	End
 	'-----------------------------------------------------------------------------
 'summery:Set if an object will wrap around the screen borders automatically.
@@ -2583,141 +2566,143 @@ The stored height is the result of the given parameter divided by the current Y 
 	Method SetVisible:Void (visible:Bool = True, children:Bool = False  )
 		isVisible = visible
 		If children = True
-			For Local child := Eachin childObjList
+			For Local child := Eachin Self.childObjList
 				child.SetVisible(visible, children)
 			Next
 		Endif
 	End
 	'-----------------------------------------------------------------------------
+'changes:2.02:Added scale mode parameter.
 #Rem
-'summery:Set the width of an object.
+'summery:Set the width of an object. If scaleMode is set to true, the scalefactor is determined by comparing the width to the current width.
 The stored width is the result of the given parameter divided by the current X scale factor.
 #End
 'seeAlso:GetWidth,SetHeight
-	Method SetWidth:Void (width:Float )
+	Method SetWidth:Void (width:Float, scaleMode:Bool = False )
+		If scaleMode = True then	Self.scaleX = width/Self.w
 		Self.w = width/scaleX
 		_RotateSpriteCol()
 	End	
 '#DOCOFF#	
 	'-----------------------------------------------------------------------------
 	Method _Init:ftObject()
-		xPos = 0.0
-		yPos = 0.0
-		zPos = 0.0
-		w = 0.0
-		h = 0.0
+		Self.xPos = 0.0
+		Self.yPos = 0.0
+		Self.zPos = 0.0
+		Self.w = 0.0
+		Self.h = 0.0
 
-		x2 = 0.0								'Render -- case ftEngine.otLine
-		y2 = 0.0								'Render -- case ftEngine.otLine
+		Self.x2 = 0.0								'Render -- case ftEngine.otLine
+		Self.y2 = 0.0								'Render -- case ftEngine.otLine
 		'verts = verts.Resize(0)
-		verts = []
-		rw = 0.0
-		rh = 0.0
-		rox = 0.0
-		roy = 0.0
+		Self.verts = []
+		Self.renderWidth = 0.0
+		Self.renderHeight = 0.0
+		Self.renderOffX = 0.0
+		Self.renderOffY = 0.0
 	
-		angle = 0.0
-		scaleX = 1.0
-		scaleY = 1.0
-		radius = 1.0
-		friction = 0.0
+		Self.angle = 0.0
+		Self.scaleX = 1.0
+		Self.scaleY = 1.0
+		Self.radius = 1.0
+		Self.friction = 0.0
 	
-		speed = 0.0
-		speedX = 0.0
-		speedY = 0.0
-		speedSpin = 0.0
-		speedAngle = 0.0
-		speedMax = 9999.0
-		speedMin = -9999.0
+		Self.speed = 0.0
+		Self.speedX = 0.0
+		Self.speedY = 0.0
+		Self.speedSpin = 0.0
+		Self.speedAngle = 0.0
+		Self.speedMax = 9999.0
+		Self.speedMin = -9999.0
 	
-		engine = Null
+		Self.engine = Null
 	
-		red = 255.0
-		blue  = 255.0
-		green = 255.0
-		alpha = 1.0
-		blendMode = BlendMode.Alpha 
+		Self.red = 255.0
+		Self.blue  = 255.0
+		Self.green = 255.0
+		Self.alpha = 1.0
+		Self.blendMode = BlendMode.Alpha 
 			
 		'objImg = objImg.Resize(0)
-		objImg = []
+		Self.objImg = []
 			
-		frameCount = 1
-		frameStart = 0
-		frameEnd = 0
-		frameLength = 0
+		Self.frameCount = 1
+		Self.frameStart = 0
+		Self.frameEnd = 0
+		Self.frameLength = 0
 			
-		layer = Null
-		layerNode = Null
+		Self.layer = Null
+		Self.layerNode = Null
 			
-		parentObj = Null
-		parentNode = Null
+		Self.parentObj = Null
+		Self.parentNode = Null
 			
-		marker = Null
-		markerNode = Null
+		Self.marker = Null
+		Self.markerNode = Null
 			
-		objFont = Null
+		Self.objFont = Null
 			
-		id = 0
-		textMode = 0
-		name = ""
-		text = ""
-		tag = 0
-		type = ftEngine.otImage
-		groupID = 0
+		Self.id = 0
+		Self.textMode = 0
+		Self.name = ""
+		Self.text = ""
+		Self.tag = 0
+		Self.type = ftEngine.otImage
+		Self.groupID = 0
 			
-		collType = 0
-		collScale = 1.0
-		collGroup = 0
-		collWith = [0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0]
-		colCheck = False
+		Self.collType = 0
+		Self.collScale = 1.0
+		Self.collGroup = 0
+		Self.collWith = [0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0]
+		Self.colCheck = False
 			
-		isVisible = True
-		isAnimated = False
-		isActive = True
-		isWrappingX = False
-		isWrappingY = False
-		touchMode = 0
-		isFlipH = False 
-		isFlipV = False   
+		Self.isVisible = True
+		Self.isAnimated = False
+		Self.isActive = True
+		Self.isWrappingX = False
+		Self.isWrappingY = False
+		Self.touchMode = 0
+		Self.isFlipH = False 
+		Self.isFlipV = False   
 		
-		onDeleteEvent = False
-		onRenderEvent = False
-		onUpdateEvent = True
+		Self.onDeleteEvent = False
+		Self.onRenderEvent = False
+		Self.onUpdateEvent = True
 			
-		x1c = 0.0
-		y1c = 0.0
-		x2c = 0.0
-		y2c = 0.0
-		x3c = 0.0
-		y3c = 0.0
-		x4c = 0.0
-		y4c = 0.0
+		Self.x1c = 0.0
+		Self.y1c = 0.0
+		Self.x2c = 0.0
+		Self.y2c = 0.0
+		Self.x3c = 0.0
+		Self.y3c = 0.0
+		Self.x4c = 0.0
+		Self.y4c = 0.0
 		
-		deleted = False
-		If tileMap <> Null
-			tileMap.Remove()
+		Self.deleted = False
+		If Self.tileMap <> Null
+			Self.tileMap.Remove()
 		Endif
 
-		dataObj = Null
+		Self.dataObj = Null
 #If FantomX_UsePhysics = 1
-		box2DBody = Null
+		Self.box2DBody = Null
 #Endif			
-		objPathUpdAngle = False
+		Self.objPathUpdAngle = False
 			
-		offAngle = 0.0
-		handleX = 0.5
-		handleY = 0.5
-		hOffX = 0.0
-		hOffY = 0.0
+		Self.offAngle = 0.0
+		Self.handleX = 0.5
+		Self.handleY = 0.5
+		Self.handleOffX = 0.0
+		Self.handleOffY = 0.0
 			
-		animMng = Null
-		currImageIndex = 1
-		currImageFrame = 1
+		Self.animMng = Null
+		Self.currImageIndex = 1
+		Self.currImageFrame = 1
 			
-		minX = 0.0
-		minY = 0.0
-		maxX = 0.0
-		maxY = 0.0
+		Self.objMinX = 0.0
+		Self.objMinY = 0.0
+		Self.objMaxX = 0.0
+		Self.objMaxY = 0.0
 		
 		Return Self
 	End
@@ -2727,7 +2712,7 @@ The stored width is the result of the given parameter divided by the current X s
 		Local tyOff:Float = 0.0
 		Local ret:Bool = False
 
-		If deleted = False Then
+		If Self.deleted = False Then
 			Select type
 
 				Case ftEngine.otText
@@ -2813,8 +2798,8 @@ The stored width is the result of the given parameter divided by the current X s
 		Local yCosVal:Float
 		Local ang:Float
 
-		Self.hOffX = (0.5-Self.handleX)*w*Self.scaleX
-		Self.hOffY = (0.5-Self.handleY)*h*Self.scaleY
+		Self.handleOffX = (0.5-Self.handleX)*Self.w*Self.scaleX
+		Self.handleOffY = (0.5-Self.handleY)*Self.h*Self.scaleY
 
 		ang = (Self.angle + Self.offAngle)
 		SinVal = Sin(ang)
@@ -2822,7 +2807,7 @@ The stored width is the result of the given parameter divided by the current X s
 
 		cx = -Self.w/2.0*Self.scaleX
 		cy =  Self.h/2.0*Self.scaleY
-    
+
 		If Self.isFlipV = True Then cy *= -1
 		If Self.isFlipH = True Then cx *= -1
 
@@ -2832,40 +2817,40 @@ The stored width is the result of the given parameter divided by the current X s
 		xSinVal = cx * SinVal
 		ySinVal = cy * SinVal
 
-		Self.x1c=(xCosVal)-(ySinVal)+Self.hOffX
-		Self.y1c=(yCosVal)+(xSinVal)+Self.hOffY
+		Self.x1c=(xCosVal)-(ySinVal)+Self.handleOffX
+		Self.y1c=(yCosVal)+(xSinVal)+Self.handleOffY
 
 		'x = x * -1
-		Self.x2c=(-xCosVal)-( ySinVal)+Self.hOffX
-		Self.y2c=( yCosVal)+(-xSinVal)+Self.hOffY
+		Self.x2c=(-xCosVal)-( ySinVal)+Self.handleOffX
+		Self.y2c=( yCosVal)+(-xSinVal)+Self.handleOffY
 
 		'y = y * -1
-		Self.x3c=(-xCosVal)-(-ySinVal)+Self.hOffX
-		Self.y3c=(-yCosVal)+(-xSinVal)+Self.hOffY
+		Self.x3c=(-xCosVal)-(-ySinVal)+Self.handleOffX
+		Self.y3c=(-yCosVal)+(-xSinVal)+Self.handleOffY
 
 		'x = x * -1
-		Self.x4c=( xCosVal)-(-ySinVal)+Self.hOffX
-		Self.y4c=(-yCosVal)+( xSinVal)+Self.hOffY
+		Self.x4c=( xCosVal)-(-ySinVal)+Self.handleOffX
+		Self.y4c=(-yCosVal)+( xSinVal)+Self.handleOffY
 
-		Self.minX = Min(Min(Self.x1c, Self.x2c), Min(Self.x3c, Self.x4c))
-		Self.minY = Min(Min(Self.y1c, Self.y2c), Min(Self.y3c, Self.y4c))
-		Self.maxX = Max(Max(Self.x1c, Self.x2c), Max(Self.x3c, Self.x4c))
-		Self.maxY = Max(Max(Self.y1c, Self.y2c), Max(Self.y3c, Self.y4c))
+		Self.objMinX = Min(Min(Self.x1c, Self.x2c), Min(Self.x3c, Self.x4c))
+		Self.objMinY = Min(Min(Self.y1c, Self.y2c), Min(Self.y3c, Self.y4c))
+		Self.objMaxX = Max(Max(Self.x1c, Self.x2c), Max(Self.x3c, Self.x4c))
+		Self.objMaxY = Max(Max(Self.y1c, Self.y2c), Max(Self.y3c, Self.y4c))
 	End
 	'-----------------------------------------------------------------------------
 	Method _WrapScreenX:Void()
-		If xPos < 0.0  
-			Self.SetPos(engine.canvasWidth,0.0,True)
-		Elseif xPos > engine.canvasWidth  
-			Self.SetPos(-engine.canvasWidth,0.0,True)
+		If Self.xPos < 0.0  
+			Self.SetPos(Self.engine.canvasWidth, 0.0 ,True)
+		Elseif Self.xPos > Self.engine.canvasWidth  
+			Self.SetPos(-Self.engine.canvasWidth, 0.0, True)
 		Endif
 	End
 	'-----------------------------------------------------------------------------
 	Method _WrapScreenY:Void()
-		If yPos < 0.0  
-			Self.SetPos(0.0,engine.canvasHeight,True)
-		Elseif yPos > engine.canvasHeight  
-			Self.SetPos(0.0,-engine.canvasHeight,True)
+		If Self.yPos < 0.0  
+			Self.SetPos(0.0, Self.engine.canvasHeight, True)
+		Elseif Self.yPos > Self.engine.canvasHeight  
+			Self.SetPos(0.0, -Self.engine.canvasHeight, True)
 		Endif
 	End
 
@@ -2874,14 +2859,14 @@ The stored width is the result of the given parameter divided by the current X s
 'summery:Update an object with the given updatespeed factor.
 	Method Update:Void(delta:Float=1.0)
 
-		If isActive = True And deleted = False Then
+		If Self.isActive = True And Self.deleted = False Then
 			If engine.isPaused = False Then
 				If isAnimated = True And Self.animMng.isAnimPaused = False
-					Self.animMng.UpdateCurrAnim(delta* engine.timeScale)
+					Self.animMng.UpdateCurrAnim(delta* Self.engine.timeScale)
 				Endif
 	
-			    Local currSpeed:Float = speed
-			    Local currFriction:Float = friction * delta * engine.timeScale
+			    Local currSpeed:Float = Self.speed
+			    Local currFriction:Float = Self.friction * delta * Self.engine.timeScale
 
 			    If currSpeed > 0.0 
 				    currSpeed = currSpeed - currFriction
@@ -2890,53 +2875,53 @@ The stored width is the result of the given parameter divided by the current X s
 					    speedX = 0.0
 					    speedY = 0.0
 					Else
-					    speed  = currSpeed
-					    speedX = Sin(speedAngle) * currSpeed
-					    speedY = -Cos(speedAngle) * currSpeed
-						Self.SetPos(speedX * delta * engine.timeScale, speedY * delta * engine.timeScale, True)	
+					    Self.speed  = currSpeed
+					    Self.speedX = Sin(Self.speedAngle) * currSpeed
+					    Self.speedY = -Cos(Self.speedAngle) * currSpeed
+						Self.SetPos(Self.speedX * delta * Self.engine.timeScale, Self.speedY * delta * Self.engine.timeScale, True)	
 					Endif
 				Elseif currSpeed < 0.0
 			    	currSpeed = currSpeed + currFriction
 				    If currSpeed > currFriction  
-					    speed  = 0.0
-					    speedX = 0.0
-					    speedY = 0.0
+					    Self.speed  = 0.0
+					    Self.speedX = 0.0
+					    Self.speedY = 0.0
 					Else
-					    speed  = currSpeed
-					    speedX = Sin(speedAngle) * currSpeed
-					    speedY = -Cos(speedAngle) * currSpeed
-						Self.SetPos(speedX * delta * engine.timeScale, speedY * delta * engine.timeScale, True)	
+					    Self.speed  = currSpeed
+					    Self.speedX = Sin(Self.speedAngle) * currSpeed
+					    Self.speedY = -Cos(Self.speedAngle) * currSpeed
+						Self.SetPos(Self.speedX * delta * Self.engine.timeScale, Self.speedY * delta * Self.engine.timeScale, True)	
 					Endif
 				Endif
-			    If speedSpin  <> 0.0 
-			        Local absSpeedSpin:Float = speedSpin
+			    If Self.speedSpin  <> 0.0 
+			        Local absSpeedSpin:Float = Self.speedSpin
 			        If absSpeedSpin < 0 Then absSpeedSpin = absSpeedSpin * -1.0
 			        If absSpeedSpin < currFriction 
-			            speedSpin = 0.0
+			            Self.speedSpin = 0.0
 			        Else
-			           If speedSpin > 0.0 
-			                speedSpin = speedSpin - currFriction
+			           If Self.speedSpin > 0.0 
+			                Self.speedSpin = Self.speedSpin - currFriction
 			           Else
-			                speedSpin = speedSpin + currFriction
+			                Self.speedSpin = Self.speedSpin + currFriction
 			           Endif
-			           Self.SetAngle(speedSpin * delta * engine.timeScale, True)
+			           Self.SetAngle(Self.speedSpin * delta * Self.engine.timeScale, True)
 			        Endif
 			    Endif
 	
 				If Self.isWrappingX Then Self._WrapScreenX()
 				If Self.isWrappingY Then Self._WrapScreenY()
 			Endif
-			For Local child := Eachin childObjList 
+			For Local child := Eachin Self.childObjList 
 				If child.isActive Then child.Update(delta)
 			Next
-			For Local trans:ftTrans = Eachin transitionList
+			For Local trans:ftTrans = Eachin Self.transitionList
 				trans.Update()
 			Next
-			For Local timer:ftTimer = Eachin timerList
+			For Local timer:ftTimer = Eachin Self.timerList
 				timer.Update()
 			Next
-			If engine.isPaused = False Then
-				If Self.onUpdateEvent = True Then engine.OnObjectUpdate(Self)
+			If Self.engine.isPaused = False Then
+				If Self.onUpdateEvent = True Then Self.engine.OnObjectUpdate(Self)
 			Endif
 		Endif
 		Self.CleanupLists()

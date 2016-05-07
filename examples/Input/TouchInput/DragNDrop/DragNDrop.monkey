@@ -4,7 +4,7 @@ Strict
 	Script:			DragNDrop.monkey
 	Description:	Sample script to show how to drag and drop and object
 	Author: 		Michael Hartlef
-	Version:      	1.0
+	Version:      	2.0
 #End
 
 ' Set the AutoSuspend functionality to TRUE so OnResume/OnSuspend are called
